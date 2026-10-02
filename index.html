@@ -196,9 +196,15 @@ a.btn{text-decoration:none; display:inline-block}
 .final .snack.yes b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
 .final .snack.no{background:var(--paper); border:2px solid var(--line); color:var(--muted)}
 .pcard .pc.snack{background:var(--c2)}
+.cfm{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50}
+.cfm[hidden]{display:none}
+.cfm .box{background:var(--card); color:var(--ink); border:2px solid var(--ink); border-radius:18px; box-shadow:6px 6px 0 var(--ink); max-width:380px; width:100%; padding:20px; text-align:center; line-height:1.7; word-break:keep-all}
+.cfm .row{display:flex; gap:10px; justify-content:center; margin-top:14px}
+.cfm .btn{min-width:110px}
 </style>
 </head>
 <body>
+<div class="cfm" id="cfm" hidden role="dialog" aria-modal="true"><div class="box"><p id="cfmMsg"></p><div class="row"><button class="btn ghost" id="cfmNo" style="--accent:var(--muted)">취소</button><button class="btn" id="cfmYes" style="--accent:var(--c4)">확인</button></div></div></div>
 <div class="wrap">
   <div id="login" hidden>
     <div class="hero"><span class="badge">공통수학2 Ⅲ. 함수와 그래프 1. 함수</span>
@@ -252,6 +258,10 @@ const ENABLED=['ox','mc','fill','judge'];
 const on=id=>ENABLED.includes(id);
 const countOf=D=>(on('ox')?D.ox.length:0)+(on('mc')?D.mc.length:0)+(on('fill')?D.fill.reduce((a,g)=>a+g.cells.length,0):0)+(on('map')?D.map.length:0)+(on('match')?D.match.length:0)+(on('judge')?D.judge.length:0);
 const progress={};
+// 확인 창 (게시된 페이지에서는 브라우저 confirm 창이 막힐 수 있어 화면 안에 직접 띄움)
+function askConfirm(msg,yes){ const c=document.getElementById('cfm'); document.getElementById('cfmMsg').textContent=msg; c.hidden=false;
+  const close=ok=>{ c.hidden=true; if(ok)yes(); }; document.getElementById('cfmYes').onclick=()=>close(true); document.getElementById('cfmNo').onclick=()=>close(false);
+  document.getElementById('cfmYes').focus(); }
 // 학생별 기록 저장 (같은 기기·같은 브라우저)
 const store={mem:{},ok:true,
   get(k){ try{const v=localStorage.getItem(k); if(v)return JSON.parse(v);}catch(e){this.ok=false;} return this.mem[k]||null; },
@@ -346,6 +356,7 @@ function makePage(n){
     const sec=document.createElement('section'); sec.className='stage s-'+s.id; sec.style.setProperty('--accent',`var(${s.color})`);
     sec.innerHTML=`<h2>${s.name}</h2><p class="how">${s.how}</p><div class="body"></div>`; main.appendChild(sec); });
   function show(id){
+    const o=sessGet(); if(o){ o.tabs=o.tabs||{}; o.tabs[n]=id; sessSet({tabs:o.tabs}); }
     root.querySelectorAll('.stage').forEach(x=>x.classList.toggle('on',x.classList.contains('s-'+id)));
     root.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.s===id));
     // 오른쪽 아래 버튼: 옆에 있는 다음 유형의 퀴즈로 이동
@@ -498,10 +509,10 @@ function makePage(n){
     updateScore();
   }
   root.querySelector('.reset').onclick=()=>{
-    if(answered.size&&!confirm('이 페이지를 처음부터 다시 풀까요? 지금 기록은 지워지고 도전 횟수가 1 늘어나요.'))return;
-    const R=rec(n); R.log=[]; R.finishedAt=null; R.tries=(R.tries||1)+(answered.size?1:0);
-    solved=new Set(); answered=new Set(); build(); show(STAGES[0].id); window.scrollTo(0,0);};
-  build(); replay(); updateScore(); show(STAGES[0].id); refreshWho(root);
+    const doReset=()=>{ const R=rec(n); R.log=[]; R.finishedAt=null; R.tries=(R.tries||1)+(answered.size?1:0);
+      solved=new Set(); answered=new Set(); build(); show(STAGES[0].id); window.scrollTo(0,0); };
+    if(answered.size) askConfirm('이 페이지를 처음부터 다시 풀까요? 지금 기록은 지워지고 도전 횟수가 1 늘어나요.',doReset); else doReset(); };
+  build(); replay(); updateScore(); show(STAGES.some(x=>x.id===sessTab(n))?sessTab(n):STAGES[0].id); refreshWho(root);
   return root;
 }
 const views={};
@@ -519,20 +530,29 @@ const login=document.getElementById('login');
 function refreshWho(scope=document){ scope.querySelectorAll('.who').forEach(w=>w.textContent=student?`👤 ${student.id} ${student.name}`:''); }
 function clearViews(){ Object.keys(views).forEach(k=>{views[k].remove(); delete views[k];}); }
 let pending=null;
+// 새로 고침해도 로그인과 보던 화면이 유지되도록 '이 탭'에만 기억 (탭을 닫으면 사라짐)
+const SKEY='fnquiz:session';
+function sessGet(){ try{ return JSON.parse(sessionStorage.getItem(SKEY)||'null'); }catch(e){ return null; } }
+function sessSet(patch){ if(!student)return; try{ const o=sessGet()||{}; Object.assign(o,{id:student.id,name:student.name},patch); sessionStorage.setItem(SKEY,JSON.stringify(o)); }catch(e){} }
+function sessClear(){ try{ sessionStorage.removeItem(SKEY); }catch(e){} }
+function sessTab(n){ const o=sessGet(); return o&&o.tabs&&o.tabs[n]; }
+function doLogin(id,name,restored){
+  student={id,name}; clearViews();
+  const old=store.get(skey()); DB=old||{pages:{}};
+  const cnt=Object.values(DB.pages).filter(p=>p.sum&&p.sum.answered>0).length;
+  document.getElementById('welcome').textContent=restored?'':(old&&cnt?`다시 왔네요, ${name}! 지난번에 풀던 ${cnt}개 페이지의 기록을 불러왔어요.`:`${name}, 환영해요! 페이지를 골라 시작해 보세요.`);
+  if(!store.ok) document.getElementById('saveHelp').textContent='이 화면에서는 기록이 저장되지 않아요. 창을 닫으면 기록이 사라져요.';
+  NUMS.forEach(updateHome); refreshWho(); save(); sessSet({});
+  const p=pending; pending=null; go(p); }
 document.getElementById('loginForm').addEventListener('submit',e=>{ e.preventDefault();
   const id=document.getElementById('sid').value.trim(), name=document.getElementById('sname').value.trim().replace(/\s+/g,' '), err=document.getElementById('loginErr');
   if(!/^\d{4,6}$/.test(id)){ err.textContent='학번은 숫자 4~6자리로 입력해 주세요.'; return; }
   if(name.length<2){ err.textContent='이름을 2글자 이상 입력해 주세요.'; return; }
-  err.textContent=''; student={id,name}; clearViews();
-  const old=store.get(skey()); DB=old||{pages:{}};
-  const cnt=Object.values(DB.pages).filter(p=>p.sum&&p.sum.answered>0).length;
-  document.getElementById('welcome').textContent=old&&cnt?`다시 왔네요, ${name}! 지난번에 풀던 ${cnt}개 페이지의 기록을 불러왔어요.`:`${name}, 환영해요! 페이지를 골라 시작해 보세요.`;
-  if(!store.ok) document.getElementById('saveHelp').textContent='이 화면에서는 기록이 저장되지 않아요. 창을 닫으면 기록이 사라져요.';
-  NUMS.forEach(updateHome); refreshWho(); save(); const p=pending; pending=null; go(p); });
+  err.textContent=''; sessClear(); doLogin(id,name,false); });
 document.getElementById('logout').onclick=()=>{
-  if(!confirm('다른 학생으로 바꿀까요? 지금까지의 기록은 저장되어 있어요.'))return;
-  student=null; DB=null; clearViews(); NUMS.forEach(updateHome);
-  document.getElementById('sid').value=''; document.getElementById('sname').value=''; go(null); };
+  askConfirm('다른 학생으로 바꿀까요? 지금까지의 기록은 저장되어 있어요.',()=>{
+    sessClear(); student=null; DB=null; clearViews(); NUMS.forEach(updateHome);
+    document.getElementById('sid').value=''; document.getElementById('sname').value=''; go(null); }); };
 // 미리보기 창(샌드박스)에서는 #주소 이동이 막힐 수 있어서, 클릭으로 직접 화면을 바꿔요.
 function go(n){
   Object.values(views).forEach(v=>v.hidden=true);
@@ -544,7 +564,7 @@ function go(n){
     document.title=`${ALL[n].badge} ${ALL[n].title}`; }
   else { home.hidden=false; document.title='공통수학2 함수 퀴즈 놀이터'; }
   try{ history.replaceState(null,'',n&&ALL[n]?'#p'+n:location.pathname+location.search); }catch(e){}
-  window.scrollTo(0,0);
+  sessSet({page:n&&ALL[n]?n:null}); window.scrollTo(0,0);
 }
 document.addEventListener('click',e=>{
   const a=e.target.closest('a[href^="#"]'); if(!a)return;
@@ -552,7 +572,14 @@ document.addEventListener('click',e=>{
   const m=a.getAttribute('href').match(/^#p(\d+)$/); go(m?Number(m[1]):null);
 });
 function route(){ const m=location.hash.match(/^#p(\d+)$/); go(m?Number(m[1]):null); }
-window.addEventListener('hashchange',route); route();
+window.addEventListener('hashchange',route);
+(function start(){
+  const o=sessGet(), m=location.hash.match(/^#p(\d+)$/);
+  if(o&&o.id&&o.name){ pending=m?Number(m[1]):(o.page||null); const y=o.scrollY||0; doLogin(o.id,o.name,true);
+    requestAnimationFrame(()=>setTimeout(()=>window.scrollTo(0,y),30)); }
+  else route(); })();
+// 새로 고침 직전 스크롤 위치 기억
+window.addEventListener('pagehide',()=>sessSet({scrollY:window.scrollY}));
 
 </script>
 </body>
