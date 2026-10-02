@@ -107,6 +107,8 @@ button:disabled{cursor:default}
 .act{display:flex; gap:8px; flex-wrap:wrap}
 .btn{border:2px solid var(--accent); background:var(--accent); color:#fff; border-radius:12px; padding:8px 16px; font:inherit; cursor:pointer}
 .btn.ghost{background:transparent; color:var(--accent)}
+.pnav .btn.ghost, .topbar .btn.ghost{background:var(--card)}
+.pnav .btn.ghost:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 8%,var(--card))}
 
 .mapbox svg{width:100%; max-width:340px; height:auto; background:var(--paper); border-radius:16px; border:2px solid var(--line); touch-action:manipulation; display:block}
 .pt{cursor:pointer}
