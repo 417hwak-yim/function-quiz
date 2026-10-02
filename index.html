@@ -196,6 +196,21 @@ a.btn{text-decoration:none; display:inline-block}
 .final .snack.yes b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
 .final .snack.no{background:var(--paper); border:2px solid var(--line); color:var(--muted)}
 .pcard .pc.snack{background:var(--c2)}
+.pcard{position:relative}
+.stamp{position:absolute; right:10px; bottom:8px; width:58px; height:58px; border:3px double #e03131; border-radius:50%; color:#e03131;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:"Jua",sans-serif; font-size:15px; line-height:1.1;
+  font-size:14px; transform:rotate(-14deg); background:color-mix(in srgb,#e03131 7%,var(--card)); box-shadow:0 0 0 2px color-mix(in srgb,#e03131 25%,transparent); pointer-events:none}
+.stamp small{font-size:10px; font-family:"Noto Sans KR",sans-serif; margin-top:2px}
+.final .snack .give{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:#e03131}
+.final .snack .give small{display:block; font-family:"Noto Sans KR",sans-serif; font-size:12px; opacity:.85}
+.retrybar{display:none; margin:0 0 14px; padding:10px 14px; border-radius:14px; background:color-mix(in srgb,var(--c4) 12%,var(--card)); border:2px solid var(--c4); font-size:16px; line-height:1.6; word-break:keep-all}
+.retrybar.on{display:block}
+.q.kept, .jcard.kept{display:none}
+.allok{display:none; text-align:center; padding:18px; border-radius:14px; background:var(--okbg); font-size:17px}
+.allok.on{display:block}
+.final .snack .retry{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:var(--c4)}
+.final .snack.got{background:var(--card); border:3px solid #e03131; color:#e03131; position:relative}
+.final .snack.got b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
 .cfm{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50}
 .cfm[hidden]{display:none}
 .cfm .box{background:var(--card); color:var(--ink); border:2px solid var(--ink); border-radius:18px; box-shadow:6px 6px 0 var(--ink); max-width:380px; width:100%; padding:20px; text-align:center; line-height:1.7; word-break:keep-all}
@@ -221,7 +236,7 @@ a.btn{text-decoration:none; display:inline-block}
     <div class="guide"><h3>이렇게 풀어요</h3><ol>
 <li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
 <li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
-<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪</li>
+<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪 80%가 안 되면 <b>'틀린 문제만 재도전하기'</b>로 다시 풀어서 80%를 넘겨도 받을 수 있어요. (페이지마다 한 번)</li>
 </ol></div>
   </div>
   <div id="home" hidden>
@@ -233,7 +248,7 @@ a.btn{text-decoration:none; display:inline-block}
     <div class="guide"><h3>이렇게 풀어요</h3><ol>
 <li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
 <li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
-<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪</li>
+<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪 80%가 안 되면 <b>'틀린 문제만 재도전하기'</b>로 다시 풀어서 80%를 넘겨도 받을 수 있어요. (페이지마다 한 번)</li>
 </ol></div>
     <div class="grid" id="grid"></div>
     <p class="help" id="saveHelp">푼 기록은 학번과 이름별로 이 기기에 저장돼요. 다른 기기에서는 이어지지 않아요.</p>
@@ -343,11 +358,12 @@ function makePage(n){
   <header><div><span class="badge">${D.badge}</span><h1>${[...D.title].map(c=>c===' '?' ':`<span>${c}</span>`).join('')}</h1>
   <p class="sub">${D.src} 내용으로 만든 ${STAGES.length}가지 놀이, ${TOTAL}문제</p></div>
   <div class="score" aria-live="polite"><b class="sc"></b><small>맞힌 문제</small><div class="bar"><i class="scbar"></i></div><small class="prog"></small></div></header>
-  <div class="goal">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요.</small></div>
+  <div class="goal">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요. 80%가 안 되면 '틀린 문제만 재도전하기'로 다시 풀어서 80%를 넘겨도 간식을 받을 수 있어요. (페이지마다 한 번)</small></div>
+  <div class="retrybar" aria-live="polite"></div>
   <nav class="tabs" role="tablist"></nav><main class="stages"></main>
   <div class="final" aria-live="polite"></div>
   <footer class="pnav"><button class="btn ghost prevtype"></button>
-  <button class="btn ghost reset" style="--accent:var(--muted)">처음부터 다시 하기</button>
+  <button class="btn ghost reset" style="--accent:var(--c4)">🔁 틀린 문제만 재도전하기</button>
   <button class="btn ghost nexttype"></button></footer>`;
   const tabs=root.querySelector('.tabs'), main=root.querySelector('.stages');
   STAGES.forEach(s=>{
@@ -382,14 +398,30 @@ function makePage(n){
       const t=root.querySelector(`.tab[data-s="${s.id}"]`); t.querySelector('.cnt').textContent=`${c}/${COUNT[s.id]}`; t.classList.toggle('done',c===COUNT[s.id]); });
     const R=rec(n), fin=root.querySelector('.final'), done=A===TOTAL;
     if(done&&!R.finishedAt){ R.finishedAt=Date.now(); if(!replaying) setTimeout(()=>fin.scrollIntoView({behavior:'smooth',block:'center'}),300); }
-    R.sum={answered:A,correct:C,total:TOTAL}; save();
+    R.sum={answered:A,correct:C,total:TOTAL};
+    if(done&&(R.tries||1)===1&&!R.first) R.first={correct:C,total:TOTAL,at:R.finishedAt};
+    if(!R.earned&&((done&&C>=NEED)||(R.first&&R.first.correct>=needOf(R.first.total)))) R.earned=R.finishedAt||Date.now();
+    save();
     fin.classList.toggle('show',done);
-    if(done){ const [h,m]=cheer(C,TOTAL), pct=Math.round(C/TOTAL*100), pass=C>=NEED;
+    if(done){ const [h,m]=cheer(C,TOTAL), pct=Math.round(C/TOTAL*100);
+      let snack;
+      if(R.snackGiven) snack=`<div class="snack got"><b>✅ 간식 수령 완료</b>${fmtTime(R.snackGiven)}에 선생님께 간식을 받았어요. 이 페이지의 간식은 한 번만 받을 수 있어요.</div>`;
+      else if(R.earned) snack=`<div class="snack yes"><b>🍪 간식 획득!</b>${C>=NEED?'80% 이상 맞혔어요.':'이전 도전에서 80% 이상 맞혔어요.'} 이 화면을 선생님께 보여 주세요.
+        <button class="btn give">간식 수령 완료<small>선생님이 간식을 준 뒤에 눌러 주세요</small></button></div>`;
+      else snack=`<div class="snack no">간식까지 <b>${NEED-C}문제</b> 더 맞히면 돼요. 틀린 문제의 해설을 읽고 <b>틀린 ${TOTAL-C}문제만 다시 풀어서</b> 80% 이상이 되면 간식을 받을 수 있어요!
+        <button class="btn retry">🔁 틀린 문제만 재도전하기</button></div>`;
       fin.innerHTML=`<div class="big">${h}</div><p class="cheer">${m}</p>
       <div class="rcard"><b>${esc(student.id)} ${esc(student.name)}</b><br>${D.badge} · ${esc(D.title)}<br>맞힌 문제 <b>${C} / ${TOTAL}</b> (${pct}%)<br><small>${fmtTime(R.finishedAt)} 완료 · ${R.tries}번째 도전</small></div>
-      ${pass?`<div class="snack yes"><b>🍪 간식 획득!</b>80% 이상 맞혔어요. 이 화면을 선생님께 보여 주세요.</div>`
-            :`<div class="snack no">간식까지 <b>${NEED-C}문제</b> 더 맞히면 돼요. 해설을 읽고 '처음부터 다시 하기'로 다시 도전해 보세요.</div>`}`; }
+      ${snack}`;
+      const rb=fin.querySelector('.retry'); if(rb) rb.onclick=retryWrong;
+      const g=fin.querySelector('.give');
+      if(g) g.onclick=()=>askConfirm(`${student.name} 학생에게 이 페이지(${D.badge.replace(/^.*함수 /,'')})의 간식을 주셨나요? '확인'을 누르면 간식 수령 완료로 기록되고, 되돌릴 수 없어요.`,()=>{
+        R.snackGiven=Date.now(); save(); updateScore(); }); }
     else fin.innerHTML='';
+    const rbar=root.querySelector('.retrybar'), K=new Set(R.keep||[]);
+    if(R.retryOnly&&!done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 <b>틀린 문제 다시 풀기</b> 중이에요. 맞힌 문제는 그대로 두고 틀린 문제만 보여요. 남은 문제 <b>${TOTAL-A}개</b>`; }
+    else if(R.retryOnly&&done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 틀린 문제 다시 풀기를 마쳤어요. 맨 아래 결과를 확인하세요.`; }
+    else rbar.classList.remove('on');
     updateHome(n); }
   function replay(){ replaying=true;
     rec(n).log.forEach(e=>{ const d=root.querySelector(`[data-qid="${e.id}"]`); if(!d)return;
@@ -398,6 +430,22 @@ function makePage(n){
       else if(e.v!==undefined){ const inp=ins[e.k]; if(inp&&!inp.disabled){ inp.value=e.v; d._check(inp); } }
       else { const b=d.querySelectorAll('.ox button, .opts button')[e.k]; if(b&&!b.disabled) b.click(); } });
     replaying=false; }
+  // 다시 풀기 모드: 이전에 맞힌 문제는 숨기고 틀린 문제만 보여 줌
+  function applyRetryView(){ const R=rec(n), K=new Set(R.retryOnly?(R.keep||[]):[]);
+    root.querySelectorAll('[data-qid]').forEach(d=>{ const id=d.dataset.qid;
+      const ids=id.startsWith('fill-')?[...d.querySelectorAll('input')].map((x,k)=>id+'-'+k):[id];
+      d.classList.toggle('kept',ids.every(x=>K.has(x))); });
+    root.querySelectorAll('.stage').forEach(st=>{ let a=st.querySelector('.allok');
+      if(!a){ a=document.createElement('p'); a.className='allok'; a.textContent='이 유형은 모두 맞혔어요! 👍 다른 탭의 틀린 문제를 풀어 보세요.'; st.appendChild(a); }
+      const qs=st.querySelectorAll('[data-qid]'); a.classList.toggle('on',qs.length>0&&[...qs].every(q=>q.classList.contains('kept'))); }); }
+  function retryWrong(){ const R=rec(n), keep=[...solved];
+    const fillKeep=keep.filter(x=>/^fill-\d+-\d+$/.test(x));
+    R.log=R.log.filter(e=>!e.id.startsWith('fill-')&&solved.has(e.id));
+    fillKeep.forEach(x=>{ const [,i,k]=x.split('-').map(Number); R.log.push({id:'fill-'+i,k,v:String(D.fill[i].cells[k].a)}); });
+    R.keep=keep; R.retryOnly=true; R.finishedAt=null; R.tries=(R.tries||1)+1; save();
+    solved=new Set(); answered=new Set(); build(); replay(); applyRetryView(); updateScore();
+    const first=STAGES.find(st=>[...root.querySelectorAll(`.s-${st.id} [data-qid]`)].some(q=>!q.classList.contains('kept')));
+    show(first?first.id:STAGES[0].id); root.querySelector('.retrybar').scrollIntoView({behavior:'smooth',block:'start'}); }
   function build(){
     let b;
     // OX
@@ -509,10 +557,10 @@ function makePage(n){
     updateScore();
   }
   root.querySelector('.reset').onclick=()=>{
-    const doReset=()=>{ const R=rec(n); R.log=[]; R.finishedAt=null; R.tries=(R.tries||1)+(answered.size?1:0);
-      solved=new Set(); answered=new Set(); build(); show(STAGES[0].id); window.scrollTo(0,0); };
-    if(answered.size) askConfirm('이 페이지를 처음부터 다시 풀까요? 지금 기록은 지워지고 도전 횟수가 1 늘어나요.',doReset); else doReset(); };
-  build(); replay(); updateScore(); show(STAGES.some(x=>x.id===sessTab(n))?sessTab(n):STAGES[0].id); refreshWho(root);
+    const wrong=answered.size-solved.size;
+    if(!wrong){ askConfirm(answered.size?'틀린 문제가 없어요. 모두 맞혔어요! 👍':'아직 푼 문제가 없어요. 문제를 먼저 풀어 보세요.',()=>{}); return; }
+    askConfirm(`틀린 ${wrong}문제만 다시 풀까요? 맞힌 문제는 그대로 인정되고, 다시 맞힌 문제는 점수에 더해져요.`,retryWrong); };
+  build(); replay(); applyRetryView(); updateScore(); show(STAGES.some(x=>x.id===sessTab(n))?sessTab(n):STAGES[0].id); refreshWho(root);
   return root;
 }
 const views={};
@@ -523,9 +571,15 @@ NUMS.forEach((n,k)=>{ const D=ALL[n]; const a=document.createElement('a'); a.cla
   grid.appendChild(a); });
 function updateHome(n){ const c=grid.querySelector(`.pcard[data-n="${n}"]`), tot=countOf(ALL[n]);
   const S=(DB&&DB.pages[n]&&DB.pages[n].sum)||{answered:0,correct:0}, pc=c.querySelector('.pc');
-  const done=S.answered>=tot, pass=done&&S.correct>=needOf(tot);
+  const P=(DB&&DB.pages[n])||{}, done=S.answered>=tot;
+  const earned=!!(P.earned||(done&&S.correct>=needOf(tot))||(P.first&&P.first.correct>=needOf(P.first.total))), pass=earned&&!P.snackGiven;
   pc.textContent=done?`${S.correct}/${tot} 맞힘${pass?' 🍪':''}`:`${S.answered}/${tot} 풂`;
-  pc.classList.toggle('snack',pass); c.classList.toggle('done',done); }
+  pc.classList.toggle('snack',pass); c.classList.toggle('done',done);
+  // 간식 수령 완료 도장
+  let st=c.querySelector('.stamp');
+  if(P.snackGiven){ if(!st){ st=document.createElement('span'); st.className='stamp'; c.appendChild(st); }
+    const d=new Date(P.snackGiven); st.innerHTML=`간식<br>완료<small>${d.getMonth()+1}/${d.getDate()}</small>`; st.setAttribute('aria-label','간식 수령 완료'); }
+  else if(st) st.remove(); }
 const login=document.getElementById('login');
 function refreshWho(scope=document){ scope.querySelectorAll('.who').forEach(w=>w.textContent=student?`👤 ${student.id} ${student.name}`:''); }
 function clearViews(){ Object.keys(views).forEach(k=>{views[k].remove(); delete views[k];}); }
