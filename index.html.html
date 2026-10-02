@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>공통수학2 함수 퀴즈 놀이터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Noto+Sans+KR:wght@500;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F8FF; --grid:#DFE7F8; --ink:#1D2547; --muted:#5A6386; --card:#FFFFFF; --line:#CBD5EE;
+  --c1:#FF5E5B; --c2:#F5A300; --c3:#00A99D; --c4:#3A6FF7; --c5:#9B5DE5; --c6:#E94FA8;
+  --ok:#1A9E55; --bad:#E0393C; --okbg:#E3F7EC; --badbg:#FDE8E8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151A2E; --grid:#222A47; --ink:#EEF1FF; --muted:#A5ADCF; --card:#1D2340; --line:#38416A;
+    --c1:#FF7A77; --c2:#FFC23D; --c3:#2ED3C4; --c4:#6E95FF; --c5:#B98BF2; --c6:#FF7CC4;
+    --ok:#3BCB7A; --bad:#FF6467; --okbg:#173A2A; --badbg:#432126;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151A2E; --grid:#222A47; --ink:#EEF1FF; --muted:#A5ADCF; --card:#1D2340; --line:#38416A;
+  --c1:#FF7A77; --c2:#FFC23D; --c3:#2ED3C4; --c4:#6E95FF; --c5:#B98BF2; --c6:#FF7CC4;
+  --ok:#3BCB7A; --bad:#FF6467; --okbg:#173A2A; --badbg:#432126;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:17px; line-height:1.6;
+}
+.wrap{max-width:880px; margin:0 auto; padding:20px 16px 60px}
+h1,h2,.tab,.big,.score b,.badge{font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:400}
+header{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:space-between; margin:6px 0 18px}
+.badge{display:inline-block; font-size:15px; color:#fff; background:var(--ink); border-radius:999px; padding:2px 12px; margin-bottom:6px}
+h1{font-size:clamp(26px,5.6vw,40px); line-height:1.2; margin:0; word-break:keep-all}
+h1 span:nth-child(6n+1){color:var(--c1)} h1 span:nth-child(6n+2){color:var(--c2)} h1 span:nth-child(6n+3){color:var(--c3)}
+h1 span:nth-child(6n+4){color:var(--c4)} h1 span:nth-child(6n+5){color:var(--c5)} h1 span:nth-child(6n+6){color:var(--c6)}
+.sub{color:var(--muted); margin:6px 0 0; font-size:15px}
+.score{background:var(--card); border:2px solid var(--ink); border-radius:16px; padding:8px 16px; box-shadow:4px 4px 0 var(--ink); text-align:center; min-width:120px}
+.score b{font-size:30px; display:block; line-height:1.1}
+.score small{color:var(--muted); font-size:13px}
+.bar{height:8px; border-radius:8px; background:var(--line); overflow:hidden; margin-top:6px}
+.bar i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c6)); transition:width .4s}
+
+.tabs{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding:4px 0 14px}
+.tab{min-width:0; border:2px solid var(--accent); color:var(--accent); background:var(--card); border-radius:16px; padding:8px 4px; font-size:16px; line-height:1.25; cursor:pointer; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; text-align:center; word-break:keep-all}
+@media (max-width:640px){ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))} .tab{font-size:15px} }
+.tab .cnt{font-family:"Gowun Dodum",sans-serif; font-size:13px; background:var(--accent); color:#fff; border-radius:999px; padding:1px 8px}
+.tab[aria-selected="true"]{background:var(--accent); color:#fff}
+.tab[aria-selected="true"] .cnt{background:#fff; color:var(--accent)}
+.tab.done .cnt::after{content:" ★"}
+button:focus-visible,input:focus-visible{outline:3px solid var(--c4); outline-offset:2px}
+
+section.stage{display:none; background:var(--card); border:2px solid var(--accent); border-radius:22px; padding:20px; box-shadow:6px 6px 0 var(--accent)}
+section.stage.on{display:block}
+.stage h2{font-size:26px; margin:0; color:var(--accent)}
+.stage .how{margin:2px 0 16px; color:var(--muted); font-size:15px}
+.q{border-top:2px dashed var(--line); padding:16px 0}
+.q:first-of-type{border-top:none; padding-top:4px}
+.qt{margin:0 0 12px; font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:700; font-size:clamp(18px,3.6vw,21px); line-height:1.7; color:var(--ink); background:color-mix(in srgb,var(--accent) 9%,var(--card)); border-left:6px solid var(--accent); border-radius:12px; padding:12px 14px}
+.qn{font-weight:400; display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-family:"Jua",sans-serif; margin-right:8px; font-size:15px; vertical-align:1px}
+.math{font-family:"STIX Two Text","Cambria Math","Cambria","Times New Roman",serif; font-style:normal; font-weight:600; font-size:1.12em; white-space:nowrap; padding:0 1px}
+.math i{font-style:italic; padding-right:.05em}
+.math sup{font-size:.68em; vertical-align:.55em; line-height:0}
+.math sub{font-size:.68em; vertical-align:-.3em; line-height:0}
+.fr{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.86em; line-height:1.15; margin:0 .12em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor; padding:0 .15em}
+
+.ox{display:flex; gap:10px; flex-wrap:wrap}
+.ox button{flex:1; min-width:96px; max-width:110px; height:48px; border-radius:12px; border:2px solid var(--line); background:var(--card); font-family:"Jua",sans-serif; font-size:24px; cursor:pointer; color:var(--ink)}
+.ox button.o{color:var(--c4)} .ox button.x{color:var(--c1)}
+.opts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+@media (max-width:480px){ .opts{grid-template-columns:1fr} }
+.opts button{text-align:center; display:flex; align-items:center; justify-content:center; padding:13px 16px; border-radius:14px; border:2px solid var(--line); background:var(--paper); color:var(--ink); font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:500; font-size:clamp(18px,4.4vw,21px); line-height:1.55; cursor:pointer; word-break:keep-all}
+.venn{width:100%; max-width:260px; height:auto; display:block; margin:0 auto}
+.venn text{font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:14px; font-weight:700; font-style:normal; fill:var(--ink)}
+.opts.pic button{padding:10px}
+.bogi{position:relative; margin:18px 0 14px; padding:18px 18px 12px; border:2px solid var(--ink); border-radius:10px; background:var(--card)}
+.bogi-t{position:absolute; top:-0.85em; left:50%; transform:translateX(-50%); background:var(--card); padding:0 10px; font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:700; font-size:16px; color:var(--ink); white-space:nowrap}
+.bogi ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.bogi li{display:flex; gap:10px; font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:500; font-size:clamp(17px,4.2vw,19px); line-height:1.6; word-break:keep-all}
+.bogi li b{flex:none; font-weight:700}
+.mcfig{margin:0 0 14px}
+.mcfig svg{width:100%; max-width:300px; height:auto; display:block; margin:0 auto; background:var(--paper); border-radius:16px; border:2px solid var(--line)}
+.opts button:hover:not(:disabled),.ox button:hover:not(:disabled){border-color:var(--accent)}
+button.right{border-color:var(--ok)!important; background:var(--okbg)!important}
+button.wrong{border-color:var(--bad)!important; background:var(--badbg)!important}
+button:disabled{cursor:default}
+.fb{margin-top:10px; padding:10px 14px; border-radius:12px; font-size:15px; display:none}
+.fb.show{display:block}
+.fb.good{background:var(--okbg); color:var(--ink); border-left:5px solid var(--ok)}
+.fb.nope{background:var(--badbg); color:var(--ink); border-left:5px solid var(--bad)}
+.fb b{font-family:"Jua",sans-serif; font-weight:400; margin-right:6px}
+
+.cells{display:flex; flex-wrap:wrap; gap:10px 16px; margin-bottom:12px}
+.cell{display:flex; align-items:center; gap:8px; background:var(--paper); border:2px solid var(--line); border-radius:14px; padding:6px 10px}
+.cell input{width:64px; height:40px; text-align:center; font-size:19px; border-radius:10px; border:2px solid var(--line); background:var(--card); color:var(--ink); font-family:"STIX Two Text",serif}
+.cell input.right{border-color:var(--ok); background:var(--okbg)}
+.cell input.wrong{border-color:var(--bad); background:var(--badbg)}
+.act{display:flex; gap:8px; flex-wrap:wrap}
+.btn{border:2px solid var(--accent); background:var(--accent); color:#fff; border-radius:12px; padding:8px 16px; font:inherit; cursor:pointer}
+.btn.ghost{background:transparent; color:var(--accent)}
+
+.mapbox svg{width:100%; max-width:340px; height:auto; background:var(--paper); border-radius:16px; border:2px solid var(--line); touch-action:manipulation; display:block}
+.pt{cursor:pointer}
+.pt circle.dot{fill:var(--ink)}
+.pt.sel circle.ring{stroke:var(--accent); stroke-width:4; fill:none}
+.pt:focus{outline:none}
+.pt:focus-visible circle.ring{stroke:var(--c4); stroke-width:4}
+svg text{fill:var(--ink); font-family:"STIX Two Text","Cambria","Times New Roman",serif; font-size:19px}
+svg text.cap,svg text.var{font-style:italic; font-weight:600}
+svg text.cap{font-size:21px; stroke:var(--paper); stroke-width:11px; stroke-linejoin:round; paint-order:stroke}
+
+.match{display:grid; grid-template-columns:1fr 1fr; gap:10px 18px}
+.match .col{display:flex; flex-direction:column; gap:10px}
+.match button{padding:12px; border-radius:14px; border:2px solid var(--line); background:var(--paper); color:var(--ink); font:inherit; cursor:pointer; min-height:52px}
+.match .col.l button{font-family:"Jua",sans-serif; font-size:19px}
+.match button.pick{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 15%,var(--paper))}
+.match button.done{cursor:default; color:#fff; border-color:transparent}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.judge{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px}
+.jcard{border:2px solid var(--line); border-radius:18px; padding:12px; background:var(--paper); display:flex; flex-direction:column}
+.jcard .qt{font-size:17px; margin-bottom:8px}
+.jcard svg{width:100%; max-width:300px; height:auto; display:block; margin:0 auto}
+.jcard .ox{margin-top:auto; padding-top:10px}
+.jcard .ox button{height:auto; min-height:50px; font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:500; font-size:clamp(18px,4.4vw,20px); line-height:1.4; max-width:none; padding:8px 6px; word-break:keep-all}
+
+.final.show{display:block}
+footer{margin-top:22px; display:flex; justify-content:center}
+@media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+@media (max-width:520px){ .match{gap:8px} .match button{font-size:15px; padding:10px 8px} section.stage{padding:16px} }
+
+.pageview header{margin-top:4px}
+.topbar{margin-bottom:6px}
+a.btn{text-decoration:none; display:inline-block}
+.back{--accent:var(--ink)}
+.pnav{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.pnav a{--accent:var(--c4)}
+.hero{margin:10px 0 22px}
+.hero h1{font-size:clamp(30px,7vw,48px)}
+.grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px}
+@media (max-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pcard{display:flex; flex-direction:column; gap:6px; text-decoration:none; color:var(--ink); background:var(--card); border:2px solid var(--accent); border-radius:20px; padding:14px 14px 12px; box-shadow:4px 4px 0 var(--accent); transition:transform .12s}
+.pcard:hover{transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--accent)}
+.pcard:focus-visible{outline:3px solid var(--c4); outline-offset:3px}
+.pn{font-family:"Jua",sans-serif; font-size:44px; line-height:1; color:var(--accent)}
+.pn small{font-size:22px; margin-left:2px}
+.ptitle{font-family:"Noto Sans KR",sans-serif; font-weight:700; font-size:16px; line-height:1.4; word-break:keep-all; min-height:2.8em}
+.pm{margin-top:auto}
+.pc{font-size:13px; background:var(--accent); color:#fff; border-radius:999px; padding:1px 9px}
+.pcard.done .pc::after{content:" ★"}
+.help{color:var(--muted); font-size:15px; margin-top:20px}
+
+/* 로그인 · 안내 · 결과 */
+.loginbox{max-width:440px; margin:0 auto; background:var(--card); border:2px solid var(--ink); border-radius:22px; box-shadow:6px 6px 0 var(--ink); padding:22px 22px 18px}
+.loginbox h2{margin:0 0 14px; font-size:24px; text-align:center}
+.loginbox label{display:block; font-family:"Noto Sans KR",sans-serif; font-weight:700; font-size:16px; margin:0 0 12px}
+.loginbox input{display:block; width:100%; box-sizing:border-box; margin-top:6px; height:50px; padding:0 14px; font-size:20px; border-radius:12px; border:2px solid var(--line); background:var(--paper); color:var(--ink); font-family:"Noto Sans KR",sans-serif}
+.loginbox input:focus{outline:none; border-color:var(--c4)}
+.loginbox .btn{width:100%; height:52px; font-size:20px; font-family:"Jua",sans-serif; --accent:var(--c4); margin-top:4px}
+.loginbox .err{min-height:1.4em; margin:0 0 6px; color:var(--bad); font-size:15px}
+.loginbox .note{color:var(--muted); font-size:14px; margin:12px 0 0; line-height:1.6; word-break:keep-all}
+.guide{background:var(--card); border:2px dashed var(--c5); border-radius:18px; padding:14px 18px; margin:0 0 20px; line-height:1.75; word-break:keep-all}
+.guide h3{margin:0 0 6px; font-family:"Jua",sans-serif; font-weight:400; font-size:21px; color:var(--c5)}
+.guide ol{margin:0; padding-left:1.3em}
+.guide b{color:var(--c6)}
+#login .guide{max-width:440px; margin:22px auto 0; box-sizing:border-box}
+.whobar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:0 0 14px}
+.who{display:inline-flex; align-items:center; gap:6px; font-family:"Noto Sans KR",sans-serif; font-weight:700; font-size:15px; background:var(--card); border:2px solid var(--line); border-radius:999px; padding:4px 14px}
+.whobar .btn{padding:4px 12px; font-size:14px}
+.welcome{margin:0 0 14px; padding:10px 14px; border-radius:12px; background:var(--okbg); border-left:5px solid var(--ok); font-size:15px}
+.welcome:empty{display:none}
+.topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+.goal{background:var(--card); border:2px dashed var(--c6); border-radius:16px; padding:12px 16px; margin:0 0 16px; line-height:1.7; word-break:keep-all; font-size:16px}
+.goal b{color:var(--c6)}
+.goal small{color:var(--muted)}
+.score .prog{display:block; font-size:12px; margin-top:2px}
+.final{display:none; margin-top:18px; text-align:center; padding:20px 18px; border-radius:22px; border:3px dashed var(--c5); background:var(--card)}
+.final.show{display:block}
+.final .big{font-size:32px; color:var(--c5); line-height:1.3}
+.final .cheer{font-size:17px; line-height:1.7; margin:8px 0 14px; word-break:keep-all}
+.final .rcard{display:inline-block; text-align:left; background:var(--paper); border:2px solid var(--line); border-radius:14px; padding:10px 18px; line-height:1.8; font-size:16px}
+.final .rcard b{font-family:"Jua",sans-serif; font-weight:400; font-size:20px}
+.final .snack{margin:14px auto 0; max-width:520px; border-radius:16px; padding:12px 16px; font-size:17px; line-height:1.6; word-break:keep-all}
+.final .snack.yes{background:color-mix(in srgb,var(--c2) 22%,var(--card)); border:3px solid var(--c2)}
+.final .snack.yes b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
+.final .snack.no{background:var(--paper); border:2px solid var(--line); color:var(--muted)}
+.pcard .pc.snack{background:var(--c2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="login" hidden>
+    <div class="hero"><span class="badge">공통수학2 Ⅲ. 함수와 그래프 1. 함수</span>
+      <h1><span>함</span><span>수</span> <span>퀴</span><span>즈</span> <span>놀</span><span>이</span><span>터</span></h1>
+      <p class="sub">학번과 이름을 입력하면 퀴즈를 시작할 수 있어요.</p></div>
+    <form class="loginbox" id="loginForm" novalidate>
+      <h2>학번과 이름 입력</h2>
+      <label>학번<input id="sid" inputmode="numeric" maxlength="6" placeholder="예: 10101" autocomplete="off"></label>
+      <label>이름<input id="sname" maxlength="10" placeholder="예: 홍길동" autocomplete="off"></label>
+      <p class="err" id="loginErr" aria-live="polite"></p>
+      <button class="btn" type="submit">퀴즈 시작하기</button>
+      <p class="note">같은 기기, 같은 브라우저에서 같은 학번과 이름으로 다시 들어오면 이전에 푼 기록을 그대로 볼 수 있어요.</p>
+    </form>
+    <div class="guide"><h3>이렇게 풀어요</h3><ol>
+<li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
+<li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
+<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪</li>
+</ol></div>
+  </div>
+  <div id="home" hidden>
+    <div class="hero"><span class="badge">공통수학2 Ⅲ. 함수와 그래프 1. 함수</span>
+      <h1><span>함</span><span>수</span> <span>퀴</span><span>즈</span> <span>놀</span><span>이</span><span>터</span></h1>
+      <p class="sub">활동지 페이지를 골라 그 페이지의 퀴즈 4종을 풀어 보세요.</p></div>
+    <div class="whobar"><span class="who"></span><button class="btn ghost" id="logout" style="--accent:var(--muted)">학생 바꾸기</button></div>
+    <p class="welcome" id="welcome"></p>
+    <div class="guide"><h3>이렇게 풀어요</h3><ol>
+<li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
+<li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
+<li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪</li>
+</ol></div>
+    <div class="grid" id="grid"></div>
+    <p class="help" id="saveHelp">푼 기록은 학번과 이름별로 이 기기에 저장돼요. 다른 기기에서는 이어지지 않아요.</p>
+  </div>
+  <div id="app"></div>
+</div>
+<script id="data" type="application/json">{"1": {"title": "함수란 무엇일까?", "src": "교과서 101~102쪽", "ox": [{"q": "$X$의 원소에 $Y$의 원소를 짝 지어 주는 것을 집합 $X$에서 집합 $Y$로의 대응이라고 한다.", "a": true, "ex": "대응의 정의 그대로예요."}, {"q": "함수는 $Y$의 각 원소에 $X$의 원소가 오직 하나씩 대응하는 것이다.", "a": false, "ex": "기준은 $X$ 쪽이에요. $X$의 각 원소에 $Y$의 원소가 오직 하나씩 대응해야 해요."}, {"q": "함수 $f$에 의하여 $x$에 $y$가 대응할 때 $y = f(x)$로 쓰고, $f(x)$를 $x$의 함숫값이라고 한다.", "a": true, "ex": "함숫값의 정의예요."}, {"q": "치역은 공역의 부분집합이다.", "a": true, "ex": "함숫값은 모두 $Y$에 속하므로 치역은 항상 공역의 부분집합이에요."}, {"q": "치역과 공역은 항상 같다.", "a": false, "ex": "약수의 개수 대응에서 공역은 {1, 2, 3, 4}이지만 치역은 {2, 3, 4}예요."}, {"q": "특별한 말이 없으면 공역은 실수 전체의 집합으로 생각한다.", "a": true, "ex": "활동지 참고 (1)에 나온 약속이에요."}], "mc": [{"q": "함수 $f : X → Y$에서 집합 $X$를 무엇이라고 할까?", "o": ["정의역", "공역", "치역", "함숫값"], "a": 0, "ex": "$X$는 정의역, $Y$는 공역이에요."}, {"q": "함수 $f : X → Y$에서 집합 $Y$를 무엇이라고 할까?", "o": ["정의역", "공역", "치역", "대응"], "a": 1, "ex": "화살표가 도착하는 쪽 집합이 공역이에요."}, {"q": "함숫값 전체의 집합 ${ f(x) | x ∈ X }$의 이름은?", "o": ["정의역", "공역", "치역", "대응"], "a": 2, "ex": "실제로 나온 함숫값만 모은 집합이 치역이에요."}, {"q": "$X$의 원소 $x$에 $Y$의 원소 $y$가 대응한다는 것을 나타내는 기호는?", "o": ["$x → y$", "$y → x$", "$x = y$", "$f → x$"], "a": 0, "ex": "$x$에서 $y$로 화살표를 그려 $x → y$로 나타내요."}, {"q": "$X$ = {2, 3, 4, 6}, $Y$ = {1, 2, 3, 4}에서 '$y$는 $x$의 약수의 개수'인 함수의 치역은?", "o": ["{1, 2, 3, 4}", "{2, 3, 4}", "{2, 3, 4, 6}", "{2, 4}"], "a": 1, "ex": "2와 3은 2에, 4는 3에, 6은 4에 대응하므로 치역은 {2, 3, 4}예요."}, {"q": "특별한 말이 없을 때 정의역은 어떻게 생각할까?", "o": ["함숫값이 정의되는 실수 전체의 집합", "자연수 전체의 집합", "정수 전체의 집합", "0을 제외한 실수 전체의 집합"], "a": 0, "ex": "활동지 참고 (1)의 약속이에요."}], "fill": [{"title": "$X$ = {−1, 1, 2}의 각 원소 $x$에 $y = |x| − x$인 $y$를 대응시킬 때, 화살표가 가리키는 값", "cells": [{"l": "$−1$", "a": 2}, {"l": "$1$", "a": 0}, {"l": "$2$", "a": 0}], "ex": "|−1| − (−1) = 2, |1| − 1 = 0, |2| − 2 = 0", "sep": "→"}, {"title": "$X$ = {2, 3, 4, 6}의 각 원소 $x$에 $x$의 약수의 개수 $y$를 대응시킬 때, 화살표가 가리키는 값", "cells": [{"l": "$2$", "a": 2}, {"l": "$3$", "a": 2}, {"l": "$4$", "a": 3}, {"l": "$6$", "a": 4}], "ex": "2(1, 2), 3(1, 3), 4(1, 2, 4), 6(1, 2, 3, 6)", "sep": "→"}], "map": [{"title": "$y = |x| − x$", "X": ["−1", "1", "2"], "Y": ["0", "1", "2"], "ans": [2, 0, 0], "capL": "X", "capR": "Y"}, {"title": "$y$는 $x$의 약수의 개수", "X": ["2", "3", "4", "6"], "Y": ["1", "2", "3", "4"], "ans": [1, 1, 2, 3], "capL": "X", "capR": "Y"}], "match": [["정의역", "집합 $X$ (출발하는 집합)"], ["공역", "집합 $Y$ (도착하는 집합)"], ["치역", "${ f(x) | x ∈ X }$"], ["함숫값", "$f(x)$"], ["대응", "$x → y$처럼 짝 지어 주는 것"]], "judgeName": "함수일까?", "judgeHow": "$X$에서 $Y$로의 대응을 보고 함수인지 판단하세요.", "judge": [{"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c"], "e": [[0, 0], [1, 0], [2, 2]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 0, "ex": "$X$의 원소마다 화살표가 하나씩 있어요. 두 원소가 같은 곳으로 가도 함수예요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c"], "e": [[0, 0], [1, 1]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 1, "ex": "3에 대응하는 원소가 없어요. $X$의 모든 원소가 대응해야 해요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c"], "e": [[0, 0], [0, 1], [1, 2], [2, 2]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 1, "ex": "1이 $a$와 $b$ 두 개에 대응해요. 오직 하나씩이어야 해요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c"], "e": [[0, 1], [1, 2], [2, 0]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 0, "ex": "$X$의 각 원소가 오직 하나씩 대응하므로 함수예요."}], "badge": "공통수학2 함수 1p"}, "2": {"title": "치역과 같은 함수", "src": "교과서 102~103쪽", "ox": [{"q": "함수 $f : X → Y$에서 함숫값 전체의 집합을 치역이라고 한다.", "a": true, "ex": "치역의 정의예요."}, {"q": "두 함수의 정의역과 공역이 같으면 항상 같은 함수이다.", "a": false, "ex": "정의역의 모든 원소 $x$에 대하여 $f(x) = g(x)$인지도 확인해야 해요."}, {"q": "정의역이 {0, 1}일 때 $f(x) = |x|$와 $g(x) = x<sup>2</sup>$은 서로 같은 함수이다.", "a": true, "ex": "$f(0) = g(0) = 0$, $f(1) = g(1) = 1$이므로 $f = g$예요."}, {"q": "두 함수 $f$, $g$가 같지 않을 때 $f ≠ g$로 나타낸다.", "a": true, "ex": "활동지 옆 설명에 나온 기호예요."}, {"q": "$X$의 원소 중 대응하지 않는 원소가 있어도 함수이다.", "a": false, "ex": "$X$의 각 원소에 모두 하나씩 대응해야 함수예요."}, {"q": "$X$의 한 원소가 $Y$의 두 원소에 대응하면 함수가 아니다.", "a": true, "ex": "오직 하나씩 대응해야 하므로 함수가 아니에요."}], "mc": [{"q": "$X$ = {1, 2, 3}, $Y$ = {$a$, $b$, $c$, $d$}에서 $f(1) = d$, $f(2) = a$, $f(3) = b$일 때 치역은?", "o": ["{$a$, $b$, $d$}", "{$a$, $b$, $c$, $d$}", "{1, 2, 3}", "{$a$, $d$}"], "a": 0, "ex": "함숫값 $d$, $a$, $b$를 모으면 치역은 {$a$, $b$, $d$}예요."}, {"q": "위 함수의 공역은?", "o": ["{1, 2, 3}", "{$a$, $b$, $d$}", "{$a$, $b$, $c$, $d$}", "{$c$}"], "a": 2, "ex": "공역은 도착하는 집합 $Y$ 전체예요."}, {"q": "정의역이 {0, 1}인 $f(x) = |x|$, $g(x) = x<sup>2</sup>$에서 $f = g$임을 보이려면 무엇을 확인할까?", "o": ["$f(0) = g(0)$이고 $f(1) = g(1)$", "$f(0) = g(0)$만", "두 식이 똑같이 생겼는지", "두 그래프가 원점을 지나는지"], "a": 0, "ex": "정의역의 모든 원소에서 함숫값이 같은지 확인해요."}, {"q": "정의역이 {−1, 1}인 $f(x) = x$, $g(x) = |x|$의 관계는?", "o": ["$f = g$", "$f ≠ g$"], "a": 1, "ex": "$f(−1) = −1$이지만 $g(−1) = 1$이므로 $f ≠ g$예요."}, {"q": "정의역이 {−1, 0, 1}일 때 $f(x) = x$와 같은 함수는?", "o": ["$g(x) = x<sup>3</sup>$", "$g(x) = x<sup>2</sup>$", "$g(x) = |x|$", "$g(x) = −x$"], "a": 0, "ex": "(−1)<sup>3</sup> = −1, 0<sup>3</sup> = 0, 1<sup>3</sup> = 1로 모두 같아요."}], "fill": [{"title": "정의역이 {0, 1}, $f(x) = |x|$, $g(x) = x<sup>2</sup>$", "cells": [{"l": "$f(0)$", "a": 0}, {"l": "$g(0)$", "a": 0}, {"l": "$f(1)$", "a": 1}, {"l": "$g(1)$", "a": 1}], "ex": "모든 원소에서 함숫값이 같으므로 $f = g$예요."}, {"title": "정의역이 {−1, 1}, $f(x) = x$, $g(x) = |x|$", "cells": [{"l": "$f(−1)$", "a": -1}, {"l": "$g(−1)$", "a": 1}], "ex": "함숫값이 다른 원소가 있으므로 $f ≠ g$예요."}], "map": [{"title": "$f(1) = d$, $f(2) = a$, $f(3) = b$", "X": ["1", "2", "3"], "Y": ["a", "b", "c", "d"], "ans": [3, 0, 1], "capL": "X", "capR": "Y"}, {"title": "$f(x) = x<sup>2</sup>$", "X": ["−1", "0", "1"], "Y": ["0", "1", "2"], "ans": [1, 0, 1], "capL": "X", "capR": "Y"}], "match": [["정의역", "화살표가 출발하는 집합"], ["공역", "화살표가 도착하는 집합"], ["치역", "실제로 화살표를 받은 원소들의 집합"], ["$f = g$", "정의역, 공역이 같고 모든 $x$에서 $f(x) = g(x)$"], ["$f ≠ g$", "두 함수가 서로 같지 않음"]], "judgeName": "함수일까?", "judgeHow": "$X$에서 $Y$로의 대응을 보고 함수인지 판단하세요.", "judge": [{"q": "", "fig": {"type": "map", "X": ["1", "2", "3", "4"], "Y": ["a", "b", "c", "d"], "e": [[0, 1], [1, 3], [2, 0]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 1, "ex": "4에 대응하는 원소가 없어서 함수가 아니에요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3", "4"], "Y": ["a", "b", "c", "d"], "e": [[0, 2], [1, 0], [2, 2], [3, 3]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 0, "ex": "모든 원소가 하나씩 대응하므로 함수예요. 치역은 {$a$, $c$, $d$}예요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3", "4"], "Y": ["a", "b", "c", "d"], "e": [[0, 0], [1, 1], [1, 3], [2, 2], [3, 2]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 1, "ex": "2가 $b$와 $d$ 두 개에 대응하므로 함수가 아니에요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3", "4"], "Y": ["a", "b", "c", "d"], "e": [[0, 1], [1, 1], [2, 1], [3, 1]], "capL": "X", "capR": "Y"}, "opts": ["함수다", "아니다"], "a": 0, "ex": "모두 $b$에 대응해도 각 원소가 하나씩 대응하므로 함수예요."}], "badge": "공통수학2 함수 2p"}, "3": {"title": "함수의 그래프란 무엇일까?", "src": "교과서 103쪽", "ox": [{"q": "함수 $f$의 그래프는 순서쌍 $(x, f(x))$ 전체의 집합이다.", "a": true, "ex": "그래프의 정의예요."}, {"q": "함수의 그래프는 정의역의 각 원소 $a$에 대하여 직선 $x = a$와 오직 한 점에서 만난다.", "a": true, "ex": "$x$ 하나에 $y$가 하나씩 정해지기 때문이에요."}, {"q": "원은 함수의 그래프가 될 수 있다.", "a": false, "ex": "직선 $x = a$가 원과 두 점에서 만나는 경우가 있어서 함수의 그래프가 될 수 없어요."}, {"q": "정의역과 공역이 실수 전체의 부분집합이면 그래프를 좌표평면 위에 그릴 수 있다.", "a": true, "ex": "순서쌍 $(x, f(x))$를 점으로 찍으면 돼요."}, {"q": "직선 $x = a$와 두 점에서 만나는 그래프도 함수의 그래프이다.", "a": false, "ex": "$x = a$에 $y$가 두 개 대응하므로 함수의 그래프가 아니에요."}], "mc": [{"q": "함수 $f : X → Y$의 그래프를 집합으로 나타낸 것은?", "o": ["${ (x, f(x)) | x ∈ X }$", "${ f(x) | x ∈ X }$", "${ x | x ∈ X }$", "${ (f(x), x) | x ∈ Y }$"], "a": 0, "ex": "$x$와 함숫값의 순서쌍을 모은 집합이에요."}, {"q": "함수의 그래프인지 판별할 때 그어 보는 직선은?", "o": ["$y$축에 평행한 직선 $x = a$", "$x$축에 평행한 직선 $y = b$", "원점을 지나는 직선", "직선 $y = x$"], "a": 0, "ex": "세로선 $x = a$와 한 점에서만 만나야 해요."}, {"q": "$X$ = {1, 2, 3}, $f(x) = 2x$의 그래프에 속하지 않는 점은?", "o": ["(1, 2)", "(2, 4)", "(3, 6)", "(4, 8)"], "a": 3, "ex": "4는 정의역 $X$에 없으므로 (4, 8)은 그래프에 속하지 않아요."}, {"q": "$X$ = {−1, 0, 1}, $f(x) = x<sup>2</sup>$의 그래프는?", "o": ["{(−1, 1), (0, 0), (1, 1)}", "{(−1, −1), (0, 0), (1, 1)}", "{(1, −1), (0, 0), (1, 1)}", "{1, 0, 1}"], "a": 0, "ex": "(−1)<sup>2</sup> = 1, 0<sup>2</sup> = 0, 1<sup>2</sup> = 1이에요."}, {"q": "점 (1, 3)과 (1, 1)이 모두 그래프에 있으면 함수의 그래프가 될 수 없는 이유는?", "o": ["$x = 1$에 대응하는 $y$가 두 개이다", "점이 너무 적다", "$y$의 값이 같다", "원점을 지나지 않는다"], "a": 0, "ex": "$x$ 하나에 $y$가 오직 하나여야 해요."}], "fill": [{"title": "$X$ = {1, 2, 3}, $f(x) = 2x$의 그래프의 점 $(x, f(x))$", "cells": [{"l": "$f(1)$", "a": 2}, {"l": "$f(2)$", "a": 4}, {"l": "$f(3)$", "a": 6}], "ex": "그래프는 {(1, 2), (2, 4), (3, 6)}이에요."}, {"title": "$X$ = {−2, 0, 2}, $f(x) = x + 1$의 그래프의 점 $(x, f(x))$", "cells": [{"l": "$f(−2)$", "a": -1}, {"l": "$f(0)$", "a": 1}, {"l": "$f(2)$", "a": 3}], "ex": "그래프는 {(−2, −1), (0, 1), (2, 3)}이에요."}], "map": [{"title": "$f(x) = 2x$", "X": ["1", "2", "3"], "Y": ["2", "4", "6", "8"], "ans": [0, 1, 2], "capL": "X", "capR": "Y"}, {"title": "$f(x) = x<sup>2</sup>$", "X": ["−1", "0", "1"], "Y": ["0", "1"], "ans": [1, 0, 1], "capL": "X", "capR": "Y"}], "match": [["그래프", "${ (x, f(x)) | x ∈ X }$"], ["치역", "${ f(x) | x ∈ X }$"], ["$f(a)$", "직선 $x = a$와 그래프가 만나는 점의 $y$좌표"], ["세로선 판정", "직선 $x = a$와 오직 한 점에서 만나야 한다"], ["원", "함수의 그래프가 될 수 없는 도형"]], "judgeName": "그래프일까?", "judgeHow": "함수의 그래프가 될 수 있는지 판단하세요.", "judge": [{"q": "", "fig": {"type": "plot", "items": [{"fn": "x*x/2-1.5"}]}, "opts": ["함수의 그래프다", "될 수 없다"], "a": 0, "ex": "어떤 직선 $x = a$와도 한 점에서만 만나요."}, {"q": "", "fig": {"type": "plot", "items": [{"circle": [0, 0, 2.6]}]}, "opts": ["함수의 그래프다", "될 수 없다"], "a": 1, "ex": "직선 $x = a$와 두 점에서 만나는 경우가 있어요."}, {"q": "", "fig": {"type": "plot", "items": [{"pts": [[1, 3], [1, 1], [2, 2], [3, 3], [4, 2]]}]}, "opts": ["함수의 그래프다", "될 수 없다"], "a": 1, "ex": "$x = 1$ 위에 점이 두 개 있어요."}, {"q": "", "fig": {"type": "plot", "items": [{"fn": "0.5*x+1"}]}, "opts": ["함수의 그래프다", "될 수 없다"], "a": 0, "ex": "직선 $x = a$와 항상 한 점에서 만나요."}, {"q": "", "fig": {"type": "plot", "items": [{"xfn": "y*y/2-2"}]}, "opts": ["함수의 그래프다", "될 수 없다"], "a": 1, "ex": "옆으로 누운 포물선은 직선 $x = a$와 두 점에서 만나요."}], "badge": "공통수학2 함수 3p"}, "4": {"title": "일대일함수와 일대일대응", "src": "교과서 82쪽", "ox": [{"q": "$x<sub>1</sub>$ ≠ $x<sub>2</sub>$이면 $f(x<sub>1</sub>) ≠ f(x<sub>2</sub>)$일 때 $f$를 일대일함수라고 한다.", "a": true, "ex": "일대일함수의 정의예요."}, {"q": "일대일함수이면서 치역과 공역이 같으면 일대일대응이다.", "a": true, "ex": "일대일대응의 두 조건이에요."}, {"q": "실수 전체에서 $f(x) = x<sup>2</sup>$은 일대일함수이다.", "a": false, "ex": "$f(−1) = f(1) = 1$이므로 일대일함수가 아니에요."}, {"q": "$f(x<sub>1</sub>) = f(x<sub>2</sub>)$이면 $x<sub>1</sub>$ $= x<sub>2</sub>$를 만족시켜도 일대일함수이다.", "a": true, "ex": "원래 명제의 대우이므로 같은 뜻이에요."}, {"q": "$f(x) = 2x$는 일대일대응이다.", "a": true, "ex": "일대일함수이고 치역과 공역이 모두 실수 전체예요."}], "mc": [{"q": "함수, 일대일함수, 일대일대응 사이의 관계를 바르게 나타낸 벤다이어그램은?", "o": ["<svg class=\"venn\" viewBox=\"0 0 240 164\" role=\"img\" aria-label=\"함수 안에 일대일대응, 그 안에 일대일함수\"><ellipse cx=\"120\" cy=\"84\" rx=\"112\" ry=\"74\" fill=\"var(--c4)\" fill-opacity=\".12\" stroke=\"var(--c4)\" stroke-width=\"2.5\"/><ellipse cx=\"128\" cy=\"100\" rx=\"80\" ry=\"52\" fill=\"var(--c1)\" fill-opacity=\".12\" stroke=\"var(--c1)\" stroke-width=\"2.5\"/><ellipse cx=\"134\" cy=\"114\" rx=\"54\" ry=\"28\" fill=\"var(--c3)\" fill-opacity=\".12\" stroke=\"var(--c3)\" stroke-width=\"2.5\"/><text x=\"120\" y=\"32\" text-anchor=\"middle\">함수</text><text x=\"128\" y=\"68\" text-anchor=\"middle\">일대일대응</text><text x=\"134\" y=\"119\" text-anchor=\"middle\">일대일함수</text></svg>", "<svg class=\"venn\" viewBox=\"0 0 240 164\" role=\"img\" aria-label=\"함수 안에 일대일함수, 그 안에 일대일대응\"><ellipse cx=\"120\" cy=\"84\" rx=\"112\" ry=\"74\" fill=\"var(--c4)\" fill-opacity=\".12\" stroke=\"var(--c4)\" stroke-width=\"2.5\"/><ellipse cx=\"128\" cy=\"100\" rx=\"80\" ry=\"52\" fill=\"var(--c3)\" fill-opacity=\".12\" stroke=\"var(--c3)\" stroke-width=\"2.5\"/><ellipse cx=\"134\" cy=\"114\" rx=\"54\" ry=\"28\" fill=\"var(--c1)\" fill-opacity=\".12\" stroke=\"var(--c1)\" stroke-width=\"2.5\"/><text x=\"120\" y=\"32\" text-anchor=\"middle\">함수</text><text x=\"128\" y=\"68\" text-anchor=\"middle\">일대일함수</text><text x=\"134\" y=\"119\" text-anchor=\"middle\">일대일대응</text></svg>", "<svg class=\"venn\" viewBox=\"0 0 240 164\" role=\"img\" aria-label=\"일대일대응 안에 일대일함수, 그 안에 함수\"><ellipse cx=\"120\" cy=\"84\" rx=\"112\" ry=\"74\" fill=\"var(--c1)\" fill-opacity=\".12\" stroke=\"var(--c1)\" stroke-width=\"2.5\"/><ellipse cx=\"128\" cy=\"100\" rx=\"80\" ry=\"52\" fill=\"var(--c3)\" fill-opacity=\".12\" stroke=\"var(--c3)\" stroke-width=\"2.5\"/><ellipse cx=\"134\" cy=\"114\" rx=\"54\" ry=\"28\" fill=\"var(--c4)\" fill-opacity=\".12\" stroke=\"var(--c4)\" stroke-width=\"2.5\"/><text x=\"120\" y=\"32\" text-anchor=\"middle\">일대일대응</text><text x=\"128\" y=\"68\" text-anchor=\"middle\">일대일함수</text><text x=\"134\" y=\"119\" text-anchor=\"middle\">함수</text></svg>", "<svg class=\"venn\" viewBox=\"0 0 240 164\" role=\"img\" aria-label=\"함수 안에 일대일함수와 일대일대응이 따로 떨어져 있음\"><ellipse cx=\"120\" cy=\"84\" rx=\"112\" ry=\"74\" fill=\"var(--c4)\" fill-opacity=\".12\" stroke=\"var(--c4)\" stroke-width=\"2.5\"/><ellipse cx=\"72\" cy=\"104\" rx=\"45\" ry=\"32\" fill=\"var(--c3)\" fill-opacity=\".12\" stroke=\"var(--c3)\" stroke-width=\"2.5\"/><ellipse cx=\"168\" cy=\"104\" rx=\"45\" ry=\"32\" fill=\"var(--c1)\" fill-opacity=\".12\" stroke=\"var(--c1)\" stroke-width=\"2.5\"/><text x=\"120\" y=\"40\" text-anchor=\"middle\">함수</text><text x=\"72\" y=\"109\" text-anchor=\"middle\">일대일함수</text><text x=\"168\" y=\"109\" text-anchor=\"middle\">일대일대응</text></svg>"], "a": 1, "pic": true, "ex": "일대일함수는 함수 중에서 정의역의 서로 다른 원소에 서로 다른 함숫값이 대응하는 것이고, 일대일대응은 일대일함수 중에서 치역과 공역이 같은 것이에요. 그래서 함수 안에 일대일함수가, 그 안에 일대일대응이 들어가요."}, {"q": "'$x<sub>1</sub>$ ≠ $x<sub>2</sub>$이면 $f(x<sub>1</sub>) ≠ f(x<sub>2</sub>)$'의 대우는?", "o": ["$f(x<sub>1</sub>) = f(x<sub>2</sub>)$이면 $x<sub>1</sub>$ $= x<sub>2</sub>$", "$x<sub>1</sub>$ $= x<sub>2</sub>$이면 $f(x<sub>1</sub>) = f(x<sub>2</sub>)$", "$f(x<sub>1</sub>) ≠ f(x<sub>2</sub>)$이면 $x<sub>1</sub>$ ≠ $x<sub>2</sub>$"], "a": 0, "ex": "가정과 결론을 바꾸고 모두 부정한 것이 대우예요."}, {"q": "$g(x) = x<sup>2</sup>$이 일대일함수가 아님을 보여 주는 예는?", "o": ["$g(−2) = g(2) = 4$", "$g(0) = 0$", "$g(1) = 1$", "$g(3) = 9$"], "a": 0, "ex": "서로 다른 −2, 2의 함숫값이 같아요."}, {"q": "다음 중 일대일대응인 것은?", "o": ["$y = |x|$", "$y = x<sup>2</sup>$ $− 1$", "$y = −x + 1$", "$y = 3$"], "a": 2, "ex": "$y = −x + 1$은 일대일함수이고 치역이 실수 전체예요."}, {"q": "$X$ = {1, 2, 3}에서 $Y$ = {$a$, $b$, $c$, $d$}로의 일대일함수가 일대일대응이 될 수 없는 이유는?", "o": ["치역의 원소는 최대 3개라 공역과 같을 수 없다", "정의역의 원소가 너무 많다", "함수가 아니다", "$Y$에 문자가 있다"], "a": 0, "ex": "치역은 원소가 3개 이하이고 공역은 4개라 같을 수 없어요."}], "fill": [{"title": "$f(x) = 2x$", "cells": [{"l": "$f(1)$", "a": 2}, {"l": "$f(2)$", "a": 4}], "ex": "서로 다른 $x$의 함숫값이 달라요."}, {"title": "$g(x) = x<sup>2</sup>$", "cells": [{"l": "$g(−2)$", "a": 4}, {"l": "$g(2)$", "a": 4}], "ex": "서로 다른 $x$인데 함숫값이 같으니 일대일함수가 아니에요."}, {"title": "$h(x) = |x|$", "cells": [{"l": "$h(−3)$", "a": 3}, {"l": "$h(3)$", "a": 3}], "ex": "$y = |x|$도 일대일함수가 아니에요."}], "map": [{"title": "일대일대응 $f(x) = x + 3$", "X": ["1", "2", "3"], "Y": ["4", "5", "6"], "ans": [0, 1, 2], "capL": "X", "capR": "Y"}, {"title": "일대일대응 $f(x) = −x$", "X": ["−1", "0", "1"], "Y": ["−1", "0", "1"], "ans": [2, 1, 0], "capL": "X", "capR": "Y"}], "match": [["일대일함수", "$x<sub>1</sub>$ ≠ $x<sub>2</sub>$이면 $f(x<sub>1</sub>) ≠ f(x<sub>2</sub>)$"], ["일대일대응", "일대일함수이고 치역과 공역이 같다"], ["$y = x<sup>2</sup>$", "일대일함수가 아닌 예"], ["$y = 2x$", "일대일대응인 예"], ["대우", "$f(x<sub>1</sub>) = f(x<sub>2</sub>)$이면 $x<sub>1</sub>$ $= x<sub>2</sub>$"]], "judgeName": "무엇일까?", "judgeHow": "그림이나 그래프를 보고 알맞은 것을 고르세요.", "judge": [{"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c", "d"], "e": [[0, 3], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "opts": ["일대일대응", "일대일함수<br>(대응은 아님)", "일대일함수 아님"], "a": 1, "ex": "서로 다른 원소가 다른 곳에 대응하지만 $c$가 남아서 치역 ≠ 공역이에요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["a", "b", "c"], "e": [[0, 1], [1, 2], [2, 0]], "capL": "X", "capR": "Y"}, "opts": ["일대일대응", "일대일함수<br>(대응은 아님)", "일대일함수 아님"], "a": 0, "ex": "일대일함수이고 치역과 공역이 같아요."}, {"q": "$y = |x|$", "fig": {"type": "plot", "items": [{"fn": "Math.abs(x)"}]}, "opts": ["일대일대응", "일대일함수<br>(대응은 아님)", "일대일함수 아님"], "a": 2, "ex": "$|−1| = |1|$이므로 일대일함수가 아니에요."}, {"q": "$y = −x + 1$", "fig": {"type": "plot", "items": [{"fn": "-x+1"}]}, "opts": ["일대일대응", "일대일함수<br>(대응은 아님)", "일대일함수 아님"], "a": 0, "ex": "일대일함수이고 치역이 실수 전체예요."}, {"q": "$y = x<sup>2</sup>$ $− 1$", "fig": {"type": "plot", "items": [{"fn": "x*x-1"}]}, "opts": ["일대일대응", "일대일함수<br>(대응은 아님)", "일대일함수 아님"], "a": 2, "ex": "$x = −1$, $x = 1$의 함숫값이 같아요."}], "badge": "공통수학2 함수 4p"}, "5": {"title": "항등함수와 상수함수", "src": "교과서 82쪽, 105쪽", "ox": [{"q": "모든 일대일함수는 일대일대응이다.", "a": false, "ex": "치역과 공역이 다른 일대일함수도 있어요."}, {"q": "정의역의 서로 다른 두 원소의 함숫값이 서로 다르면 일대일함수이다.", "a": true, "ex": "일대일함수의 정의예요."}, {"q": "치역과 공역이 같은 함수는 일대일대응이다.", "a": false, "ex": "일대일함수가 아니면 일대일대응이 아니에요."}, {"q": "항등함수는 일대일대응이다.", "a": true, "ex": "자기 자신에 대응하므로 일대일이고 치역 = 공역이에요."}, {"q": "상수함수의 치역은 원소가 한 개인 집합이다.", "a": true, "ex": "모든 원소가 같은 값 $c$에 대응하니까요."}, {"q": "항등함수 $f : X → X$에서 $f(x) = x$이다.", "a": true, "ex": "항등함수의 정의예요."}], "mc": [{"q": "다음 중 옳지 않은 것을 모두 고른 것은?", "o": ["ㄱ, ㄷ", "ㄱ", "ㄴ, ㄷ", "ㄱ, ㄴ, ㄷ"], "a": 0, "ex": "ㄴ만 옳아요. ㄱ은 치역과 공역이 같아야 일대일대응이고, ㄷ은 일대일함수여야 한다는 조건이 빠졌어요.", "box": [["ㄱ", "모든 일대일함수는 일대일대응이다."], ["ㄴ", "정의역의 서로 다른 두 원소의 함숫값이 다르면 일대일함수이다."], ["ㄷ", "치역과 공역이 같은 함수는 일대일대응이다."]]}, {"q": "항등함수의 그래프는?", "o": ["$y = x$", "$y = −x$", "$y = 1$", "$y = 2x$"], "a": 0, "ex": "$f(x) = x$이므로 $y = x$예요."}, {"q": "다음 중 상수함수는?", "o": ["$f(x) = 3$", "$f(x) = x$", "$f(x) = 3x$", "$f(x) = x + 3$"], "a": 0, "ex": "모든 $x$에 대하여 3이 대응해요."}, {"q": "$X$ = {$a$, $b$, $c$, $d$}의 모든 원소가 $Y$ = {1, 2, 3}의 2에 대응할 때 치역은?", "o": ["{2}", "{1, 2, 3}", "{$a$, $b$, $c$, $d$}", "{1, 3}"], "a": 0, "ex": "상수함수의 치역은 원소가 하나예요."}, {"q": "'치역과 공역이 같은 함수는 일대일대응이다'가 틀린 이유는?", "o": ["일대일함수가 아닐 수 있다", "치역이 공역보다 클 수 있다", "함수가 아닐 수 있다", "정의역이 없을 수 있다"], "a": 0, "ex": "일대일대응은 일대일함수라는 조건도 필요해요."}], "fill": [{"title": "$X$ = {1, 2, 3}에서의 항등함수 $f$", "cells": [{"l": "$f(1)$", "a": 1}, {"l": "$f(2)$", "a": 2}, {"l": "$f(3)$", "a": 3}], "ex": "자기 자신이 대응해요."}, {"title": "상수함수 $g(x) = 2$ ($X$ = {$a$, $b$, $c$, $d$})", "cells": [{"l": "$g(a)$", "a": 2}, {"l": "$g(d)$", "a": 2}, {"l": "치역의 원소 개수", "a": 1}], "ex": "모두 2에 대응하므로 치역은 {2}예요."}], "map": [{"title": "$X$ = {1, 2, 3}에서의 항등함수", "X": ["1", "2", "3"], "Y": ["1", "2", "3"], "ans": [0, 1, 2], "capL": "X", "capR": "X"}, {"title": "상수함수 $f(x) = 2$", "X": ["a", "b", "c", "d"], "Y": ["1", "2", "3"], "ans": [1, 1, 1, 1], "capL": "X", "capR": "Y"}], "match": [["항등함수", "$f(x) = x$"], ["상수함수", "$f(x) = c$ ($c$는 상수)"], ["일대일대응", "일대일함수이고 치역 = 공역"], ["상수함수의 치역", "원소가 한 개인 집합"], ["항등함수의 정의역과 공역", "서로 같은 집합"]], "judgeName": "무엇일까?", "judgeHow": "그림이나 그래프를 보고 알맞은 것을 고르세요.", "judge": [{"q": "", "fig": {"type": "plot", "items": [{"fn": "x"}]}, "opts": ["항등함수", "상수함수", "둘 다 아님"], "a": 0, "ex": "$y = x$는 항등함수의 그래프예요."}, {"q": "", "fig": {"type": "plot", "items": [{"fn": "-x"}]}, "opts": ["항등함수", "상수함수", "둘 다 아님"], "a": 2, "ex": "$y = −x$는 항등함수도 상수함수도 아니에요."}, {"q": "", "fig": {"type": "plot", "items": [{"fn": "1"}]}, "opts": ["항등함수", "상수함수", "둘 다 아님"], "a": 1, "ex": "$y = 1$은 상수함수의 그래프예요."}, {"q": "", "fig": {"type": "map", "X": ["1", "2", "3"], "Y": ["1", "2", "3"], "e": [[0, 0], [1, 1], [2, 2]], "capL": "X", "capR": "X"}, "opts": ["항등함수", "상수함수", "둘 다 아님"], "a": 0, "ex": "각 원소에 자기 자신이 대응해요."}, {"q": "", "fig": {"type": "map", "X": ["a", "b", "c"], "Y": ["1", "2", "3"], "e": [[0, 2], [1, 2], [2, 2]], "capL": "X", "capR": "Y"}, "opts": ["항등함수", "상수함수", "둘 다 아님"], "a": 1, "ex": "모든 원소가 3 하나에 대응해요."}], "badge": "공통수학2 함수 5p"}, "6": {"title": "합성함수란 무엇일까?", "src": "교과서 106~107쪽", "ox": [{"q": "$g ∘ f$는 $f$를 먼저, $g$를 나중에 적용한다.", "a": true, "ex": "$(g ∘ f)(x) = g(f(x))$이므로 $f$가 먼저예요."}, {"q": "$(g ∘ f)(x) = f(g(x))$이다.", "a": false, "ex": "$(g ∘ f)(x) = g(f(x))$예요."}, {"q": "함수 $f$의 치역이 함수 $g$의 정의역의 부분집합일 때 $g ∘ f$를 정의할 수 있다.", "a": true, "ex": "활동지 옆 설명에 나온 조건이에요."}, {"q": "$f : X → Z$, $g : Z → Y$이면 $g ∘ f : X → Y$이다.", "a": true, "ex": "정의역은 $X$, 공역은 $Y$예요."}, {"q": "$f(x) = x − 1$, $g(x) = −2x + 1$일 때 $(g ∘ f)(−1) = 5$이다.", "a": true, "ex": "$f(−1) = −2$, $g(−2) = 5$예요."}], "mc": [{"q": "$f(x) = x − 1$, $g(x) = −2x + 1$일 때 $(f ∘ g)(−1)$의 값은?", "o": ["2", "5", "−2", "3"], "a": 0, "ex": "$g(−1) = 3$, $f(3) = 2$예요."}, {"q": "$f(x) = 3x − 5$, $g(x) = x<sup>2</sup>$ $+ 1$일 때 $(g ∘ f)(1)$의 값은?", "o": ["5", "−2", "−3", "1"], "a": 0, "ex": "$f(1) = −2$, $g(−2) = 5$예요."}, {"q": "같은 $f$, $g$에서 $(f ∘ g)(−3)$의 값은?", "o": ["25", "10", "−14", "31"], "a": 0, "ex": "$g(−3) = 10$, $f(10) = 25$예요."}, {"q": "$f : X → Z$, $g : Z → Y$일 때 $g ∘ f$의 정의역과 공역은?", "o": ["정의역 $X$, 공역 $Y$", "정의역 $Z$, 공역 $Y$", "정의역 $X$, 공역 $Z$", "정의역 $Y$, 공역 $X$"], "a": 0, "ex": "$X$에서 출발해 $Y$에 도착해요."}, {"q": "$(g ∘ f)(x)$를 계산하는 순서는?", "o": ["$x → f(x) → g(f(x))$", "$x → g(x) → f(g(x))$", "$f(x)$와 $g(x)$를 곱한다", "$f(x)$와 $g(x)$를 더한다"], "a": 0, "ex": "안쪽의 $f$부터 계산해요."}], "fill": [{"title": "$f(x) = x − 1$, $g(x) = −2x + 1$", "cells": [{"l": "$f(−1)$", "a": -2}, {"l": "$(g ∘ f)(−1)$", "a": 5}, {"l": "$g(−1)$", "a": 3}, {"l": "$(f ∘ g)(−1)$", "a": 2}], "ex": "안쪽 함수를 먼저 계산했어요."}, {"title": "$f(x) = 3x − 5$, $g(x) = x<sup>2</sup>$ $+ 1$", "cells": [{"l": "$f(1)$", "a": -2}, {"l": "$g(−3)$", "a": 10}, {"l": "$(f ∘ g)(−3)$", "a": 25}], "ex": "$(g ∘ f)(1) = g(−2) = 5$도 함께 확인해 보세요."}], "map": [{"title": "$f(x) = x + 1$, $g(x) = 2x$일 때 $g ∘ f$", "X": ["1", "2", "3"], "Y": ["2", "4", "6", "8"], "ans": [1, 2, 3], "capL": "X", "capR": "Y", "ex": "1 → 2 → 4, 2 → 3 → 6, 3 → 4 → 8이에요."}, {"title": "$f(x) = x<sup>2</sup>$, $g(x) = x + 1$일 때 $g ∘ f$", "X": ["0", "1", "2"], "Y": ["1", "2", "3", "4", "5"], "ans": [0, 1, 4], "capL": "X", "capR": "Y", "ex": "0 → 0 → 1, 1 → 1 → 2, 2 → 4 → 5예요."}], "match": [["$g ∘ f$", "$(g ∘ f)(x) = g(f(x))$"], ["$f ∘ g$", "$(f ∘ g)(x) = f(g(x))$"], ["합성 가능 조건", "$f$의 치역 ⊂ $g$의 정의역"], ["$g ∘ f$의 정의역", "$f$의 정의역 $X$"], ["$g ∘ f$의 공역", "$g$의 공역 $Y$"]], "judgeName": "맞을까?", "judgeHow": "계산이 맞는지 판단하세요.", "judge": [{"q": "$f(x) = x + 2$, $g(x) = x<sup>2</sup>$일 때 $(g ∘ f)(1) = 9$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$f(1) = 3$, $g(3) = 9$예요."}, {"q": "$f(x) = x + 2$, $g(x) = x<sup>2</sup>$일 때 $(f ∘ g)(1) = 9$", "opts": ["맞다", "틀리다"], "a": 1, "ex": "$g(1) = 1$, $f(1) = 3$이므로 3이에요."}, {"q": "$f(x) = 2x$, $g(x) = x − 3$일 때 $(g ∘ f)(4) = 5$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$f(4) = 8$, $g(8) = 5$예요."}, {"q": "$f(x) = 2x$, $g(x) = x − 3$일 때 $(f ∘ g)(4) = 5$", "opts": ["맞다", "틀리다"], "a": 1, "ex": "$g(4) = 1$, $f(1) = 2$이므로 2예요."}], "badge": "공통수학2 함수 6p"}, "7": {"title": "합성함수 구하기", "src": "교과서 107쪽", "ox": [{"q": "$f(x) = x − 2$, $g(x) = 3x + 1$이면 $(g ∘ f)(x) = 3x − 5$이다.", "a": true, "ex": "$g(x − 2) = 3(x − 2) + 1 = 3x − 5$예요."}, {"q": "같은 $f$, $g$에서 $(f ∘ g)(x) = 3x − 1$이다.", "a": true, "ex": "$f(3x + 1) = 3x + 1 − 2 = 3x − 1$이에요."}, {"q": "일반적으로 $g ∘ f = f ∘ g$이다.", "a": false, "ex": "예제에서도 $3x − 5 ≠ 3x − 1$이에요."}, {"q": "$(g ∘ f)(x)$를 구할 때는 $g(x)$의 $x$ 자리에 $f(x)$를 넣는다.", "a": true, "ex": "$g(f(x))$이니까요."}, {"q": "$f(x) = x + 4$, $g(x) = −x<sup>2</sup>$ $+ 1$이면 $(f ∘ g)(x) = −x<sup>2</sup>$ $+ 5$이다.", "a": true, "ex": "$f(−x<sup>2</sup>$ $+ 1) = −x<sup>2</sup>$ $+ 5$예요."}], "mc": [{"q": "$f(x) = x + 4$, $g(x) = −x<sup>2</sup>$ $+ 1$일 때 $(g ∘ f)(x)$는?", "o": ["$−x<sup>2</sup>$ $− 8x − 15$", "$−x<sup>2</sup>$ $+ 5$", "$−x<sup>2</sup>$ $+ 8x + 17$", "$x<sup>2</sup>$ $+ 8x + 15$"], "a": 0, "ex": "$−(x + 4)<sup>2</sup>$ $+ 1 = −x<sup>2</sup>$ $− 8x − 15$예요."}, {"q": "위 문제에서 $g ∘ f$와 $f ∘ g$를 비교하면?", "o": ["서로 다르다", "서로 같다", "$x = 0$에서만 다르다", "비교할 수 없다"], "a": 0, "ex": "$g ∘ f ≠ f ∘ g$예요."}, {"q": "$f(x) = 2x$, $g(x) = x + 1$일 때 $(g ∘ f)(x)$는?", "o": ["$2x + 1$", "$2x + 2$", "$2x$", "$x + 2$"], "a": 0, "ex": "$g(2x) = 2x + 1$이에요."}, {"q": "같은 $f$, $g$에서 $(f ∘ g)(x)$는?", "o": ["$2x + 2$", "$2x + 1$", "$x + 2$", "$2x$"], "a": 0, "ex": "$f(x + 1) = 2(x + 1) = 2x + 2$예요."}, {"q": "$f(x) = x − 2$, $g(x) = 3x + 1$일 때 $(g ∘ f)(2)$의 값은?", "o": ["1", "5", "7", "0"], "a": 0, "ex": "$3 × 2 − 5 = 1$이에요."}], "fill": [{"title": "$f(x) = x + 4$, $g(x) = −x<sup>2</sup>$ $+ 1$", "cells": [{"l": "$(g ∘ f)(0)$", "a": -15}, {"l": "$(f ∘ g)(0)$", "a": 5}, {"l": "$(g ∘ f)(−4)$", "a": 1}, {"l": "$(f ∘ g)(1)$", "a": 4}], "ex": "식에 대입하거나 안쪽부터 차례로 계산해요."}, {"title": "$f(x) = x − 2$, $g(x) = 3x + 1$", "cells": [{"l": "$(g ∘ f)(3)$", "a": 4}, {"l": "$(f ∘ g)(1)$", "a": 2}], "ex": "$3x − 5$, $3x − 1$에 대입했어요."}], "map": [{"title": "$f(x) = x + 1$, $g(x) = x<sup>2</sup>$일 때 $g ∘ f$", "X": ["0", "1", "2"], "Y": ["0", "1", "4", "9"], "ans": [1, 2, 3], "capL": "X", "capR": "Y", "ex": "$(g ∘ f)(x) = (x + 1)<sup>2</sup>$이에요."}, {"title": "$f(x) = x + 1$, $g(x) = x<sup>2</sup>$일 때 $f ∘ g$", "X": ["0", "1", "2"], "Y": ["1", "2", "3", "5"], "ans": [0, 1, 3], "capL": "X", "capR": "Y", "ex": "$(f ∘ g)(x) = x<sup>2</sup>$ $+ 1$이에요. 위와 다르죠?"}], "match": [["예제의 $g ∘ f$", "$3x − 5$"], ["예제의 $f ∘ g$", "$3x − 1$"], ["문제02의 $g ∘ f$", "$−x<sup>2</sup>$ $− 8x − 15$"], ["문제02의 $f ∘ g$", "$−x<sup>2</sup>$ $+ 5$"], ["교환법칙", "합성에서는 일반적으로 성립하지 않는다"]], "judgeName": "맞을까?", "judgeHow": "문장이 맞는지 판단하세요.", "judge": [{"q": "$f(x) = x + 1$, $g(x) = x + 2$이면 $g ∘ f = f ∘ g$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "둘 다 $x + 3$이에요. 우연히 같은 경우도 있어요."}, {"q": "$f(x) = 2x$, $g(x) = x + 1$이면 $g ∘ f = f ∘ g$", "opts": ["맞다", "틀리다"], "a": 1, "ex": "$2x + 1 ≠ 2x + 2$예요."}, {"q": "$f(x) = x<sup>2</sup>$, $g(x) = x + 1$이면 $(g ∘ f)(x) = (x + 1)<sup>2</sup>$", "opts": ["맞다", "틀리다"], "a": 1, "ex": "$(g ∘ f)(x) = x<sup>2</sup>$ $+ 1$이에요."}, {"q": "$f(x) = x − 2$, $g(x) = 3x + 1$이면 $(f ∘ g)(0) = −1$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$3 × 0 − 1 = −1$이에요."}], "badge": "공통수학2 함수 7p"}, "8": {"title": "합성의 성질과 역함수", "src": "교과서 108~109쪽", "ox": [{"q": "함수의 합성에 대한 교환법칙이 성립한다.", "a": false, "ex": "일반적으로 $g ∘ f ≠ f ∘ g$예요."}, {"q": "$f ∘ (g ∘ h) = (f ∘ g) ∘ h$이다.", "a": true, "ex": "결합법칙은 성립해요."}, {"q": "함수 $f$가 일대일대응이면 역함수가 존재한다.", "a": true, "ex": "역함수가 존재할 필요충분조건이에요."}, {"q": "$f : X → Y$의 역함수 $f<sup>−1</sup>$의 정의역은 $X$이다.", "a": false, "ex": "$f<sup>−1</sup> : Y → X$이므로 정의역은 $Y$예요."}, {"q": "함수 $f$의 역함수가 존재하기 위한 필요충분조건은 $f$가 일대일대응인 것이다.", "a": true, "ex": "활동지 참고에 나온 내용이에요."}], "mc": [{"q": "$(f ∘ (g ∘ h))(x)$와 같은 것은?", "o": ["$f(g(h(x)))$", "$h(g(f(x)))$", "$g(f(h(x)))$", "$f(h(g(x)))$"], "a": 0, "ex": "가장 안쪽의 $h$부터 계산해요."}, {"q": "$f(a) = 4$이면 $f<sup>−1</sup>(4)$는?", "o": ["$a$", "4", "$b$", "알 수 없다"], "a": 0, "ex": "$y = f(x) ⇔ x = f<sup>−1</sup>(y)$예요."}, {"q": "$f : X → Y$의 역함수 $f<sup>−1</sup>$의 정의역과 공역은?", "o": ["정의역 $Y$, 공역 $X$", "정의역 $X$, 공역 $Y$", "정의역 $X$, 공역 $X$", "정의역 $Y$, 공역 $Y$"], "a": 0, "ex": "방향이 반대가 돼요."}, {"q": "실수 전체에서 역함수가 존재하지 않는 것은?", "o": ["$f(x) = x<sup>2</sup>$", "$f(x) = 2x$", "$f(x) = x + 1$", "$f(x) = −x$"], "a": 0, "ex": "$x<sup>2</sup>$은 일대일대응이 아니에요."}, {"q": "$f ∘ (g ∘ h)$를 괄호 없이 $f ∘ g ∘ h$로 써도 되는 이유는?", "o": ["결합법칙이 성립하므로", "교환법칙이 성립하므로", "세 함수가 같으므로", "항등함수이므로"], "a": 0, "ex": "어느 쪽을 먼저 묶어도 결과가 같아요."}], "fill": [{"title": "$f(a) = 4$, $f(b) = 2$, $f(c) = 3$, $f(d) = 1$일 때 (답은 $a$, $b$, $c$, $d$ 중 하나)", "cells": [{"l": "$f<sup>−1</sup>(4)$", "a": "a"}, {"l": "$f<sup>−1</sup>(2)$", "a": "b"}, {"l": "$f<sup>−1</sup>(1)$", "a": "d"}, {"l": "$f<sup>−1</sup>(3)$", "a": "c"}], "ex": "$f(x) = y$이면 $f<sup>−1</sup>(y) = x$예요."}, {"title": "$f(x) = x + 1$, $g(x) = 2x$, $h(x) = x − 3$", "cells": [{"l": "$(f ∘ (g ∘ h))(5)$", "a": 5}, {"l": "$((f ∘ g) ∘ h)(5)$", "a": 5}], "ex": "결합법칙대로 두 값이 같아요."}], "map": [{"title": "$f(a) = 4$, $f(b) = 2$, $f(c) = 3$, $f(d) = 1$일 때 $f<sup>−1</sup>$", "X": ["1", "2", "3", "4"], "Y": ["a", "b", "c", "d"], "ans": [3, 1, 2, 0], "capL": "Y", "capR": "X"}, {"title": "$f(x) = x + 2$ ($X$ = {0, 1, 2})일 때 $f<sup>−1</sup>$", "X": ["2", "3", "4"], "Y": ["0", "1", "2"], "ans": [0, 1, 2], "capL": "Y", "capR": "X"}], "match": [["교환법칙", "$g ∘ f ≠ f ∘ g$ (일반적으로)"], ["결합법칙", "$f ∘ (g ∘ h) = (f ∘ g) ∘ h$"], ["역함수", "$f<sup>−1</sup> : Y → X$"], ["역함수 존재 조건", "$f$가 일대일대응"], ["$y = f(x)$", "$x = f<sup>−1</sup>(y)$"]], "judgeName": "역함수 있을까?", "judgeHow": "역함수가 존재하는지 판단하세요.", "judge": [{"q": "", "fig": {"type": "map", "X": ["a", "b", "c"], "Y": ["1", "2", "3"], "e": [[0, 1], [1, 2], [2, 0]], "capL": "X", "capR": "Y"}, "opts": ["있다", "없다"], "a": 0, "ex": "일대일대응이므로 역함수가 있어요."}, {"q": "", "fig": {"type": "map", "X": ["a", "b", "c"], "Y": ["1", "2", "3"], "e": [[0, 0], [1, 0], [2, 2]], "capL": "X", "capR": "Y"}, "opts": ["있다", "없다"], "a": 1, "ex": "$a$, $b$가 같은 곳에 대응해서 일대일대응이 아니에요."}, {"q": "", "fig": {"type": "map", "X": ["a", "b", "c"], "Y": ["1", "2", "3", "4"], "e": [[0, 0], [1, 1], [2, 3]], "capL": "X", "capR": "Y"}, "opts": ["있다", "없다"], "a": 1, "ex": "3이 남아서 치역 ≠ 공역이에요."}, {"q": "$y = x<sup>2</sup>$", "fig": {"type": "plot", "items": [{"fn": "x*x/1.5"}]}, "opts": ["있다", "없다"], "a": 1, "ex": "일대일함수가 아니에요."}, {"q": "$y = 2x − 1$", "fig": {"type": "plot", "items": [{"fn": "2*x-1"}]}, "opts": ["있다", "없다"], "a": 0, "ex": "일대일대응이므로 역함수가 있어요."}], "badge": "공통수학2 함수 8p"}, "9": {"title": "역함수의 성질", "src": "교과서 109쪽", "ox": [{"q": "$(f<sup>−1</sup> ∘ f)(x) = x$ ($x ∈ X$)이다.", "a": true, "ex": "역함수의 성질 ③이에요."}, {"q": "$f<sup>−1</sup> ∘ f$는 $Y$에서의 항등함수이다.", "a": false, "ex": "$f<sup>−1</sup> ∘ f$는 $X$에서의 항등함수예요."}, {"q": "$f ∘ f<sup>−1</sup>$는 $Y$에서의 항등함수이다.", "a": true, "ex": "$(f ∘ f<sup>−1</sup>)(y) = y$예요."}, {"q": "$y = f(x) ⇔ x = f<sup>−1</sup>(y)$이다.", "a": true, "ex": "역함수의 성질 ②예요."}, {"q": "$f$가 일대일대응이면 $f<sup>−1</sup>(f(3)) = 3$이다.", "a": true, "ex": "갔다가 돌아오면 제자리예요."}], "mc": [{"q": "그림은 $X$ = {0, 1, 2}에서 $Y$ = {$a$, $b$, $c$}로의 일대일대응 $f$이다. 합성함수 $f<sup>−1</sup> ∘ f$는 어떤 함수일까?", "fig": {"type": "map", "X": ["0", "1", "2"], "Y": ["a", "b", "c"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "o": ["$X$에서의 항등함수", "$Y$에서의 항등함수", "$X$에서 $Y$로의 상수함수", "$Y$에서 $X$로의 일대일대응"], "a": 0, "ex": "$f$로 $X$에서 $Y$로 갔다가 $f<sup>−1</sup>$로 다시 $X$로 돌아오므로, $X$의 각 원소가 자기 자신에 대응해요."}, {"q": "위의 함수 $f$에서 합성함수 $f ∘ f<sup>−1</sup>$는 어떤 함수일까?", "o": ["$X$에서의 항등함수", "$Y$에서의 항등함수", "$Y$에서 $X$로의 상수함수", "$X$에서 $Y$로의 일대일대응"], "a": 1, "ex": "$f<sup>−1</sup>$로 $Y$에서 $X$로 갔다가 $f$로 다시 $Y$로 돌아오므로, $Y$에서의 항등함수예요."}, {"q": "위의 함수 $f$에서 $(f ∘ f<sup>−1</sup>)(b)$의 값은?", "o": ["$a$", "2", "$b$", "0"], "a": 2, "ex": "$f<sup>−1</sup>(b) = 2$이고 $f(2) = b$이므로 $b$예요. $f ∘ f<sup>−1</sup>$는 $Y$에서의 항등함수라서 계산하지 않아도 $b$예요."}, {"q": "위의 함수 $f$에서 $f<sup>−1</sup>(a)$의 값은?", "o": ["0", "$a$", "2", "1"], "a": 3, "ex": "$f(1) = a$이므로 $f<sup>−1</sup>(a) = 1$이에요."}, {"q": "$f(x) = 2x + 1$일 때 $f(f<sup>−1</sup>(7))$의 값은?", "o": ["7", "3", "15", "1"], "a": 0, "ex": "$f ∘ f<sup>−1</sup>$는 항등함수예요."}], "fill": [{"title": "$f(0) = c$, $f(1) = a$, $f(2) = b$", "cells": [{"l": "$f<sup>−1</sup>(c)$", "a": 0}, {"l": "$f<sup>−1</sup>(b)$", "a": 2}, {"l": "$(f<sup>−1</sup> ∘ f)(1)$", "a": 1}], "ex": "$f<sup>−1</sup> ∘ f$는 $X$에서의 항등함수예요."}, {"title": "$f(x) = 3x − 2$", "cells": [{"l": "$f<sup>−1</sup>(f(5))$", "a": 5}, {"l": "$f(f<sup>−1</sup>(10))$", "a": 10}], "ex": "계산하지 않아도 항등함수 성질로 바로 알 수 있어요."}], "map": [{"title": "$f(0) = $ㄷ, $f(1) = $ㄱ, $f(2) = $ㄴ일 때 $f<sup>−1</sup>$", "X": ["ㄱ", "ㄴ", "ㄷ"], "Y": ["0", "1", "2"], "ans": [1, 2, 0], "capL": "Y", "capR": "X"}, {"title": "같은 $f$에서 $f<sup>−1</sup> ∘ f$", "X": ["0", "1", "2"], "Y": ["0", "1", "2"], "ans": [0, 1, 2], "capL": "X", "capR": "X", "ex": "$X$에서의 항등함수가 됐어요."}], "match": [["$f<sup>−1</sup> ∘ f$", "$X$에서의 항등함수"], ["$f ∘ f<sup>−1</sup>$", "$Y$에서의 항등함수"], ["$(f<sup>−1</sup> ∘ f)(x)$", "$x$"], ["역함수 존재", "$f$가 일대일대응"], ["$y = f(x)$", "$x = f<sup>−1</sup>(y)$"]], "judgeName": "맞을까?", "judgeHow": "그림의 함수 $f$를 보고 문장이 맞는지 판단하세요.", "judge": [{"q": "$f<sup>−1</sup>(c)$ = 0", "fig": {"type": "map", "X": ["0", "1", "2"], "Y": ["a", "b", "c"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "$f(0) = c$예요."}, {"q": "$(f ∘ f<sup>−1</sup>)(a)$ = 1", "fig": {"type": "map", "X": ["0", "1", "2"], "Y": ["a", "b", "c"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 1, "ex": "$Y$에서의 항등함수이므로 값은 $a$예요."}, {"q": "$(f<sup>−1</sup> ∘ f)(2) = 2$", "fig": {"type": "map", "X": ["0", "1", "2"], "Y": ["a", "b", "c"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "$X$에서의 항등함수예요."}, {"q": "$f<sup>−1</sup>(1) = a$", "fig": {"type": "map", "X": ["0", "1", "2"], "Y": ["a", "b", "c"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 1, "ex": "$f<sup>−1</sup>$의 정의역은 $Y$예요. $f(1) = a$와 헷갈리지 않게!"}], "badge": "공통수학2 함수 9p"}, "10": {"title": "역함수는 어떻게 구할까?", "src": "교과서 113~114쪽", "ox": [{"q": "$y = f(x)$를 $x$에 대하여 풀고 $x$와 $y$를 바꾸면 $y = f<sup>−1</sup>(x)$를 구할 수 있다.", "a": true, "ex": "역함수를 구하는 순서예요."}, {"q": "$y = 2x − 3$의 역함수는 $y = \\frac{1}{2}x + \\frac{3}{2}$이다.", "a": true, "ex": "예제 1의 답이에요."}, {"q": "$y = 2x − 3$의 역함수는 $y = 2x + 3$이다.", "a": false, "ex": "$y = \\frac{1}{2}x + \\frac{3}{2}$예요."}, {"q": "역함수를 구하기 전에 일대일대응인지 확인해야 한다.", "a": true, "ex": "일대일대응일 때만 역함수가 존재해요."}, {"q": "$y = −3x − 1$의 역함수는 $y = −\\frac{1}{3}x − \\frac{1}{3}$이다.", "a": true, "ex": "$x = −\\frac{1}{3}y − \\frac{1}{3}$에서 $x$, $y$를 바꿨어요."}], "mc": [{"q": "역함수를 구하는 순서로 옳은 것은?", "o": ["$x$에 대하여 풀기 → $x$와 $y$ 바꾸기", "$x$와 $y$ 바꾸기 → 양변에 −1 곱하기", "기울기의 부호 바꾸기", "$y$절편만 바꾸기"], "a": 0, "ex": "$x$에 대하여 풀고, $x$와 $y$를 바꿔요."}, {"q": "$y = −3x − 1$의 역함수는?", "o": ["$y = −\\frac{1}{3}x − \\frac{1}{3}$", "$y = −\\frac{1}{3}x + \\frac{1}{3}$", "$y = 3x + 1$", "$y = −3x + 1$"], "a": 0, "ex": "$3x = −y − 1$, $x = −\\frac{1}{3}y − \\frac{1}{3}$이에요."}, {"q": "$y = x + 5$의 역함수는?", "o": ["$y = x − 5$", "$y = x + 5$", "$y = −x + 5$", "$y = 5x$"], "a": 0, "ex": "$x = y − 5$에서 바꿨어요."}, {"q": "$y = 4x$의 역함수는?", "o": ["$y = \\frac{1}{4}x$", "$y = −4x$", "$y = x − 4$", "$y = 4x$"], "a": 0, "ex": "$x = \\frac{1}{4}y$에서 바꿨어요."}, {"q": "$y = 2x − 3$을 $x$에 대하여 풀면?", "o": ["$x = \\frac{1}{2}y + \\frac{3}{2}$", "$x = \\frac{1}{2}y − \\frac{3}{2}$", "$x = 2y + 3$", "$x = 2y − 3$"], "a": 0, "ex": "$2x = y + 3$이므로 $x = \\frac{1}{2}y + \\frac{3}{2}$예요."}], "fill": [{"title": "$f(x) = 2x − 3$", "cells": [{"l": "$f<sup>−1</sup>(1)$", "a": 2}, {"l": "$f<sup>−1</sup>(−3)$", "a": 0}, {"l": "$f<sup>−1</sup>(5)$", "a": 4}], "ex": "$f<sup>−1</sup>(a) = b ⇔ f(b) = a$예요."}, {"title": "$f(x) = −3x − 1$", "cells": [{"l": "$f<sup>−1</sup>(2)$", "a": -1}, {"l": "$f<sup>−1</sup>(−1)$", "a": 0}, {"l": "$f<sup>−1</sup>(−7)$", "a": 2}], "ex": "역함수 식에 넣거나, $f(b) = a$인 $b$를 찾아요."}], "map": [{"title": "$f(x) = 2x − 3$ ($X$ = {0, 1, 2})일 때 $f<sup>−1</sup>$", "X": ["−3", "−1", "1"], "Y": ["0", "1", "2"], "ans": [0, 1, 2], "capL": "Y", "capR": "X"}, {"title": "$f(x) = −3x − 1$ ($X$ = {−1, 0, 1})일 때 $f<sup>−1</sup>$", "X": ["−4", "−1", "2"], "Y": ["−1", "0", "1"], "ans": [2, 1, 0], "capL": "Y", "capR": "X"}], "match": [["$y = 2x − 3$", "$y = \\frac{1}{2}x + \\frac{3}{2}$"], ["$y = −3x − 1$", "$y = −\\frac{1}{3}x − \\frac{1}{3}$"], ["$y = x + 5$", "$y = x − 5$"], ["$y = 4x$", "$y = \\frac{1}{4}x$"], ["$y = −x$", "$y = −x$ (자기 자신)"]], "judgeName": "맞을까?", "judgeHow": "역함수가 맞는지 판단하세요.", "judge": [{"q": "$y = 3x + 6$의 역함수는 $y = \\frac{1}{3}x − 2$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$x = \\frac{1}{3}y − 2$에서 바꿨어요."}, {"q": "$y = x − 1$의 역함수는 $y = x − 1$", "opts": ["맞다", "틀리다"], "a": 1, "ex": "역함수는 $y = x + 1$이에요."}, {"q": "$y = −x + 2$의 역함수는 $y = −x + 2$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$x = −y + 2$이므로 자기 자신이 역함수예요."}, {"q": "$y = \\frac{1}{2}x$의 역함수는 $y = 2x$", "opts": ["맞다", "틀리다"], "a": 0, "ex": "$x = 2y$에서 바꿨어요."}, {"q": "실수 전체에서 $y = x<sup>2</sup>$도 같은 방법으로 역함수를 구할 수 있다", "opts": ["맞다", "틀리다"], "a": 1, "ex": "일대일대응이 아니라서 역함수가 없어요."}], "badge": "공통수학2 함수 10p"}, "11": {"title": "역함수의 성질과 기초 문제", "src": "교과서 113~114쪽, 92쪽", "ox": [{"q": "$(g ∘ f)<sup>−1</sup>$ $= f<sup>−1</sup> ∘ g<sup>−1</sup>$이다.", "a": true, "ex": "순서가 뒤바뀌어요."}, {"q": "$(g ∘ f)<sup>−1</sup>$ $= g<sup>−1</sup> ∘ f<sup>−1</sup>$이다.", "a": false, "ex": "$(g ∘ f)<sup>−1</sup>$ $= f<sup>−1</sup> ∘ g<sup>−1</sup>$예요."}, {"q": "$(f<sup>−1</sup>)<sup>−1</sup>$ $= f$이다.", "a": true, "ex": "역함수의 역함수는 자기 자신이에요."}, {"q": "$y = −4$는 상수함수이다.", "a": true, "ex": "모든 $x$에 −4가 대응해요."}, {"q": "$y = x<sup>2</sup>$은 일대일함수이다.", "a": false, "ex": "$(−1)<sup>2</sup>$ $= 1<sup>2</sup>$이에요."}], "mc": [{"q": "$f(x) = 2x + 3$일 때 $f<sup>−1</sup>(x)$는?", "o": ["$\\frac{1}{2}x − \\frac{3}{2}$", "$\\frac{1}{2}x + \\frac{3}{2}$", "$2x − 3$", "$−2x + 3$"], "a": 0, "ex": "$x = \\frac{1}{2}y − \\frac{3}{2}$에서 바꿨어요."}, {"q": "$g(x) = −x + 1$일 때 $g<sup>−1</sup>(x)$는?", "o": ["$−x + 1$", "$x − 1$", "$x + 1$", "$−x − 1$"], "a": 0, "ex": "자기 자신이 역함수예요."}, {"q": "$f(x) = 2x + 3$, $g(x) = −x + 1$일 때 $(g ∘ f)(x)$는?", "o": ["$−2x − 2$", "$−2x + 4$", "$2x + 2$", "$−2x − 4$"], "a": 0, "ex": "$−(2x + 3) + 1 = −2x − 2$예요."}, {"q": "같은 $f$, $g$에서 $(g ∘ f)<sup>−1</sup>(x)$는?", "o": ["$−\\frac{1}{2}x − 1$", "$−\\frac{1}{2}x + 1$", "$−2x − 2$", "$\\frac{1}{2}x − 1$"], "a": 0, "ex": "$f<sup>−1</sup> ∘ g<sup>−1</sup>$로 구해도 같아요."}, {"q": "정의역과 공역이 실수 전체의 집합일 때, 다음 중 일대일함수를 모두 고른 것은?", "o": ["ㄴ, ㄷ", "ㄴ", "ㄱ, ㄴ, ㄷ", "ㄷ, ㄹ"], "a": 0, "ex": "ㄱ은 모든 $x$에 −4가 대응하는 상수함수이고, ㄹ은 $x = −1$과 $x = 1$에 모두 1이 대응하므로 일대일함수가 아니에요.", "box": [["ㄱ", "$y = −4$"], ["ㄴ", "$y = x$"], ["ㄷ", "$y = 5x + 7$"], ["ㄹ", "$y = x<sup>2</sup>$"]]}], "fill": [{"title": "$f(x) = 2x + 3$, $g(x) = −x + 1$", "cells": [{"l": "$(g ∘ f)(0)$", "a": -2}, {"l": "$(g ∘ f)<sup>−1</sup>(−2)$", "a": 0}, {"l": "$f<sup>−1</sup>(5)$", "a": 1}, {"l": "$g<sup>−1</sup>(0)$", "a": 1}, {"l": "$(f<sup>−1</sup> ∘ g<sup>−1</sup>)(−2)$", "a": 0}], "ex": "$(g ∘ f)<sup>−1</sup>$과 $f<sup>−1</sup> ∘ g<sup>−1</sup>$가 같은 값을 주죠?"}], "map": [{"title": "$f(x) = x + 1$", "X": ["−1", "0", "1", "2"], "Y": ["0", "1", "2", "3"], "ans": [0, 1, 2, 3], "capL": "X", "capR": "Y"}, {"title": "$f(1) = c$, $f(2) = a$, $f(3) = b$일 때 $f<sup>−1</sup>$", "X": ["a", "b", "c"], "Y": ["1", "2", "3"], "ans": [1, 2, 0], "capL": "Y", "capR": "X"}], "match": [["ㄱ. $y = −4$", "상수함수"], ["ㄴ. $y = x$", "항등함수"], ["ㄷ. $y = 5x + 7$", "일대일대응"], ["ㄹ. $y = x<sup>2</sup>$", "일대일함수가 아님"], ["$(g ∘ f)<sup>−1</sup>$", "$f<sup>−1</sup> ∘ g<sup>−1</sup>$"]], "judgeName": "맞을까?", "judgeHow": "그림의 함수를 보고 문장이 맞는지 판단하세요.", "judge": [{"q": "정의역은 {−1, 0, 1, 2}이다", "fig": {"type": "map", "X": ["−1", "0", "1", "2"], "Y": ["0", "1", "2", "3"], "e": [[0, 1], [1, 1], [2, 0], [3, 3]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "출발하는 집합 $X$예요."}, {"q": "치역은 {0, 1, 2, 3}이다", "fig": {"type": "map", "X": ["−1", "0", "1", "2"], "Y": ["0", "1", "2", "3"], "e": [[0, 1], [1, 1], [2, 0], [3, 3]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 1, "ex": "2는 화살표를 받지 않아서 치역은 {0, 1, 3}이에요."}, {"q": "공역은 {0, 1, 2, 3}이다", "fig": {"type": "map", "X": ["−1", "0", "1", "2"], "Y": ["0", "1", "2", "3"], "e": [[0, 1], [1, 1], [2, 0], [3, 3]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "도착하는 집합 $Y$ 전체예요."}, {"q": "이 함수는 일대일함수이다", "fig": {"type": "map", "X": ["−1", "0", "1", "2"], "Y": ["0", "1", "2", "3"], "e": [[0, 1], [1, 1], [2, 0], [3, 3]], "capL": "X", "capR": "Y"}, "opts": ["맞다", "틀리다"], "a": 1, "ex": "−1과 0이 모두 1에 대응해요."}], "badge": "공통수학2 함수 11p"}, "12": {"title": "기초·기본 문제 점검", "src": "교과서 92쪽", "ox": [{"q": "$f(x) = 2x<sup>2</sup>$ $− 1$일 때 $(f ∘ f)(1) = 1$이다.", "a": true, "ex": "$f(1) = 1$, $f(1) = 1$이에요."}, {"q": "$g(x) = x − 3$일 때 $(g ∘ g)(0) = −6$이다.", "a": true, "ex": "$g(0) = −3$, $g(−3) = −6$이에요."}, {"q": "$y = 5x + 2$의 역함수는 $y = \\frac{1}{5}x − \\frac{2}{5}$이다.", "a": true, "ex": "$x = \\frac{1}{5}y − \\frac{2}{5}$에서 바꿨어요."}, {"q": "$y = −\\frac{1}{3}x + 6$의 역함수는 $y = −3x + 6$이다.", "a": false, "ex": "$x = −3y + 18$이므로 $y = −3x + 18$이에요."}, {"q": "$(f ∘ g)<sup>−1</sup>$ $= g<sup>−1</sup> ∘ f<sup>−1</sup>$이다.", "a": true, "ex": "역함수를 취하면 순서가 바뀌어요."}], "mc": [{"q": "$f(x) = 2x<sup>2</sup>$ $− 1$일 때 $(f ∘ f)(1)$의 값은?", "o": ["1", "7", "−1", "3"], "a": 0, "ex": "$f(1) = 1$이므로 다시 $f(1) = 1$이에요."}, {"q": "$g(x) = x − 3$일 때 $(g ∘ g)(0)$의 값은?", "o": ["−6", "−3", "0", "6"], "a": 0, "ex": "$g(−3) = −6$이에요."}, {"q": "$y = −\\frac{1}{3}x + 6$의 역함수는?", "o": ["$y = −3x + 18$", "$y = −3x + 6$", "$y = 3x − 18$", "$y = \\frac{1}{3}x − 6$"], "a": 0, "ex": "$x = −3(y − 6)$이에요."}, {"q": "$f(2) = 4$, $f(3) = 2$, $f(4) = 3$, $g(2) = 2$, $g(3) = 4$, $g(4) = 3$일 때 $(f ∘ g)<sup>−1</sup>(3)$은?", "o": ["3", "2", "4", "없다"], "a": 0, "ex": "$f(g(x)) = 3$이 되려면 $g(x) = 4$, 즉 $x = 3$이에요."}, {"q": "같은 $f$, $g$에서 $(f<sup>−1</sup> ∘ g<sup>−1</sup> ∘ f)(2)$는?", "o": ["4", "3", "2", "없다"], "a": 0, "ex": "$f(2) = 4$, $g<sup>−1</sup>(4) = 3$, $f<sup>−1</sup>(3) = 4$예요."}], "fill": [{"title": "$f(x) = 2x<sup>2</sup>$ $− 1$, $g(x) = x − 3$", "cells": [{"l": "$(f ∘ f)(1)$", "a": 1}, {"l": "$(f ∘ f)(0)$", "a": 1}, {"l": "$(g ∘ g)(0)$", "a": -6}], "ex": "안쪽부터 차례로 계산했어요."}, {"title": "역함수의 값 ($f(x) = 5x + 2$, $h(x) = −\\frac{1}{3}x + 6$)", "cells": [{"l": "$f<sup>−1</sup>(7)$", "a": 1}, {"l": "$f<sup>−1</sup>(2)$", "a": 0}, {"l": "$h<sup>−1</sup>(5)$", "a": 3}], "ex": "$f(b) = a$인 $b$를 찾으면 돼요."}], "map": [{"title": "$f(2) = 4$, $f(3) = 2$, $f(4) = 3$일 때 $f<sup>−1</sup>$", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "ans": [1, 2, 0], "capL": "X", "capR": "X"}, {"title": "$g(2) = 2$, $g(3) = 4$, $g(4) = 3$일 때 $f ∘ g$", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "ans": [2, 1, 0], "capL": "X", "capR": "X", "ex": "2 → 2 → 4, 3 → 4 → 3, 4 → 3 → 2예요."}], "match": [["$(f ∘ f)(1)$", "1"], ["$(g ∘ g)(0)$", "−6"], ["$y = 5x + 2$의 역함수", "$y = \\frac{1}{5}x − \\frac{2}{5}$"], ["$y = −\\frac{1}{3}x + 6$의 역함수", "$y = −3x + 18$"], ["$(f ∘ g)<sup>−1</sup>(3)$", "3"]], "judgeName": "맞을까?", "judgeHow": "그림의 함수 $f$와 $g(2) = 2$, $g(3) = 4$, $g(4) = 3$을 보고 판단하세요.", "judge": [{"q": "$f<sup>−1</sup>(2) = 3$", "fig": {"type": "map", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "X"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "$f(3) = 2$예요."}, {"q": "$g<sup>−1</sup>(4) = 3$", "fig": {"type": "map", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "X"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "$g(3) = 4$예요."}, {"q": "$(g ∘ f)(2) = 4$", "fig": {"type": "map", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "X"}, "opts": ["맞다", "틀리다"], "a": 1, "ex": "$f(2) = 4$, $g(4) = 3$이므로 3이에요."}, {"q": "$(f ∘ g)(3) = 3$", "fig": {"type": "map", "X": ["2", "3", "4"], "Y": ["2", "3", "4"], "e": [[0, 2], [1, 0], [2, 1]], "capL": "X", "capR": "X"}, "opts": ["맞다", "틀리다"], "a": 0, "ex": "$g(3) = 4$, $f(4) = 3$이에요."}], "badge": "공통수학2 함수 12p"}}</script>
+<script>
+const ALL=JSON.parse(document.getElementById('data').textContent);
+const NUMS=Object.keys(ALL).map(Number).sort((a,b)=>a-b);
+const M=s=>`<span class="math">${s.replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g,'<span class="fr"><span>$1</span><span>$2</span></span>').replace(/<[^>]+>|[A-Za-z]/g,m=>m.length>1?m:`<i>${m}</i>`)}</span>`;
+const T=s=>String(s).replace(/\$([^$]+)\$/g,(_,m)=>M(m));
+const norm=v=>String(v).replace(/\s/g,'').replace(/[−–]/g,'-').toLowerCase();
+function same(v,a){ const arr=Array.isArray(a)?a:[a];
+  return arr.some(x=>{ const nv=norm(v), nx=norm(x); if(nv==='')return false;
+    if(!isNaN(Number(nv))&&!isNaN(Number(nx)))return Number(nv)===Number(nx); return nv===nx; }); }
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const isVar=v=>/^[A-Za-z]$/.test(v);
+const CCOL=['--c1','--c2','--c3','--c4','--c5','--c6'];
+// 사용할 퀴즈 종류. 'map'(화살표 잇기), 'match'(용어 짝꿍)를 다시 쓰려면 여기에 추가하세요.
+const ENABLED=['ox','mc','fill','judge'];
+const on=id=>ENABLED.includes(id);
+const countOf=D=>(on('ox')?D.ox.length:0)+(on('mc')?D.mc.length:0)+(on('fill')?D.fill.reduce((a,g)=>a+g.cells.length,0):0)+(on('map')?D.map.length:0)+(on('match')?D.match.length:0)+(on('judge')?D.judge.length:0);
+const progress={};
+// 학생별 기록 저장 (같은 기기·같은 브라우저)
+const store={mem:{},ok:true,
+  get(k){ try{const v=localStorage.getItem(k); if(v)return JSON.parse(v);}catch(e){this.ok=false;} return this.mem[k]||null; },
+  set(k,v){ this.mem[k]=v; try{localStorage.setItem(k,JSON.stringify(v));}catch(e){this.ok=false;} } };
+let student=null, DB=null;
+const skey=()=>`fnquiz:v1:${student.id}:${student.name}`;
+function rec(n){ DB.pages[n]=DB.pages[n]||{log:[],tries:1,finishedAt:null,sum:null}; return DB.pages[n]; }
+function save(){ if(!student)return; DB.updated=Date.now(); store.set(skey(),DB); }
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtTime=t=>{ const d=new Date(t); const z=x=>String(x).padStart(2,'0'); return `${d.getMonth()+1}월 ${d.getDate()}일 ${z(d.getHours())}:${z(d.getMinutes())}`; };
+const needOf=T=>Math.ceil(T*0.8-1e-9);
+function cheer(c,T){ const r=c/T;
+  if(c===T) return ['만점! 함수 박사 인정! 🏆','한 문제도 놓치지 않았어요. 이 페이지는 완벽하게 정복했어요!'];
+  if(r>=0.8) return ['훌륭해요! 🎉','핵심 개념을 탄탄하게 익혔어요. 틀린 문제의 해설만 한 번 더 읽어 보면 완벽해요.'];
+  if(r>=0.6) return ['잘하고 있어요! 💪','절반을 훌쩍 넘었어요. 틀린 문제의 해설을 다시 읽어 보면 80%도 금방이에요.'];
+  if(r>=0.4) return ['조금만 더 힘내요! 🌱','헷갈린 개념을 활동지에서 다시 확인해 보세요. 한 번 더 정리하면 분명 더 올라가요.'];
+  return ['끝까지 푼 것만으로도 멋져요! 🙌','시작이 반이에요. 해설을 읽으며 하나씩 정리하고 다시 도전해 봐요.']; }
+function mapSVG(X,Y,edges,o={}){
+  const n=Math.max(X.length,Y.length), gap=46, top=50, W=320, H=top+n*gap+16;
+  const yPos=(arr,k)=>top+(n-arr.length)*gap/2+k*gap+gap/2-6;
+  const xA=95, xB=225, eTop=26, eBot=top+n*gap+4, cy=(eTop+eBot)/2, ry=(eBot-eTop)/2;
+  const col=o.ok?'var(--ok)':'var(--accent)';
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="대응 그림">
+  <defs><marker id="ar-${o.uid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${col}"/></marker>
+  <marker id="arw-${o.uid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--bad)"/></marker></defs>
+  ${o.fn?`<text x="160" y="24" text-anchor="middle" class="var" style="font-size:18px">${o.fn}</text>`:''}
+  <ellipse cx="${xA-14}" cy="${cy}" rx="46" ry="${ry}" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <ellipse cx="${xB+14}" cy="${cy}" rx="46" ry="${ry}" fill="none" stroke="var(--ink)" stroke-width="2"/>
+  <text class="cap" x="${xA-14}" y="${eTop+7}" text-anchor="middle">${o.capL||'X'}</text><text class="cap" x="${xB+14}" y="${eTop+7}" text-anchor="middle">${o.capR||'Y'}</text>`;
+  edges.forEach(([a,b])=>{ const w=o.wrong&&o.wrong.has(a);
+    s+=`<line x1="${xA+8}" y1="${yPos(X,a)}" x2="${xB-10}" y2="${yPos(Y,b)}" stroke="${w?'var(--bad)':col}" stroke-width="2.6" marker-end="url(#${w?'arw':'ar'}-${o.uid})"/>`; });
+  X.forEach((v,k)=>{ const y=yPos(X,k);
+    s+=`<g class="pt ${o.sel===k?'sel':''}" data-side="x" data-k="${k}" ${o.interactive?`tabindex="0" role="button" aria-label="${v}"`:''}>
+    <circle cx="${xA}" cy="${y}" r="18" fill="transparent"/><circle class="ring" cx="${xA}" cy="${y}" r="11" fill="none"/>
+    <circle class="dot" cx="${xA}" cy="${y}" r="5"/><text x="${xA-16}" y="${y+6}" text-anchor="end" class="${isVar(v)?'var':''}">${v}</text></g>`; });
+  Y.forEach((v,k)=>{ const y=yPos(Y,k);
+    s+=`<g class="pt" data-side="y" data-k="${k}" ${o.interactive?`tabindex="0" role="button" aria-label="${v}"`:''}>
+    <circle cx="${xB}" cy="${y}" r="18" fill="transparent"/><circle class="dot" cx="${xB}" cy="${y}" r="5"/>
+    <text x="${xB+14}" y="${y+6}" class="${isVar(v)?'var':''}">${v}</text></g>`; });
+  return s+'</svg>';
+}
+function plotSVG(items){
+  const S=24, C=110, px=x=>C+x*S, py=y=>C-y*S;
+  let s=`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="그래프">
+  <line x1="6" y1="${C}" x2="214" y2="${C}" stroke="var(--muted)" stroke-width="1.6"/><line x1="${C}" y1="214" x2="${C}" y2="6" stroke="var(--muted)" stroke-width="1.6"/>
+  <text x="206" y="${C+20}" class="var" style="font-size:16px">x</text><text x="${C+8}" y="18" class="var" style="font-size:16px">y</text>
+  <text x="${C-16}" y="${C+18}" style="font-size:15px">O</text>`;
+  const st='fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"';
+  items.forEach(it=>{
+    if(it.fn||it.xfn){ const f=new Function(it.fn?'x':'y','return '+(it.fn||it.xfn)); let d='', pen=false;
+      for(let t=-4.4;t<=4.4001;t+=0.05){ let x,y; if(it.fn){x=t;y=f(t);}else{y=t;x=f(t);}
+        if(!isFinite(x)||!isFinite(y)||Math.abs(y)>4.4||Math.abs(x)>4.4){pen=false;continue;}
+        d+=(pen?'L':'M')+px(x).toFixed(1)+','+py(y).toFixed(1); pen=true; }
+      s+=`<path d="${d}" ${st}/>`; }
+    if(it.circle){ const [a,b,r]=it.circle; s+=`<circle cx="${px(a)}" cy="${py(b)}" r="${r*S}" ${st}/>`; }
+    if(it.pts) it.pts.forEach(([a,b])=>{ s+=`<circle cx="${px(a)}" cy="${py(b)}" r="5.5" fill="var(--accent)"/>`; });
+  });
+  return s+'</svg>';
+}
+function fig(f,uid){ if(!f)return ''; if(f.type==='plot')return plotSVG(f.items);
+  return mapSVG(f.X,f.Y,f.e,{uid,capL:f.capL,capR:f.capR,fn:f.fn}); }
+
+function makePage(n){
+  const D=ALL[n], P='p'+n;
+  const STAGES=[
+   {id:'ox',name:'O·X 퀴즈',how:'문장이 맞으면 O, 틀리면 X를 누르세요.',color:'--c1'},
+   {id:'mc',name:'골라 보자',how:'알맞은 답을 하나 고르세요.',color:'--c2'},
+   {id:'fill',name:'숫자 채우기',how:'빈칸에 값을 쓰고 다음 칸으로 넘어가거나 Enter를 누르면 바로 채점돼요.',color:'--c3'},
+   {id:'map',name:'화살표 잇기',how:'왼쪽 점을 누른 다음, 대응하는 오른쪽 점을 누르면 화살표가 생겨요. 다시 누르면 바꿀 수 있어요.',color:'--c4'},
+   {id:'match',name:'용어 짝꿍',how:'왼쪽 카드를 누르고, 짝이 되는 오른쪽 카드를 누르세요.',color:'--c5'},
+   {id:'judge',name:D.judgeName||'함수일까?',how:T(D.judgeHow||'그림을 보고 알맞은 것을 고르세요.'),color:'--c6'}].filter(s=>on(s.id));
+  const COUNT={ox:D.ox.length,mc:D.mc.length,fill:D.fill.reduce((a,g)=>a+g.cells.length,0),map:D.map.length,match:D.match.length,judge:D.judge.length};
+  const TOTAL=countOf(D);
+  let solved=new Set(), answered=new Set(), replaying=false;
+  const NEED=needOf(TOTAL);
+  const root=document.createElement('div'); root.className='pageview'; root.hidden=true;
+  const i=NUMS.indexOf(n), prev=NUMS[i-1], next=NUMS[i+1];
+  root.innerHTML=`<div class="topbar"><a class="btn ghost back" href="#">← 메인 페이지로 🏠</a><span class="who"></span></div>
+  <header><div><span class="badge">${D.badge}</span><h1>${[...D.title].map(c=>c===' '?' ':`<span>${c}</span>`).join('')}</h1>
+  <p class="sub">${D.src} 내용으로 만든 ${STAGES.length}가지 놀이, ${TOTAL}문제</p></div>
+  <div class="score" aria-live="polite"><b class="sc"></b><small>맞힌 문제</small><div class="bar"><i class="scbar"></i></div><small class="prog"></small></div></header>
+  <div class="goal">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요.</small></div>
+  <nav class="tabs" role="tablist"></nav><main class="stages"></main>
+  <div class="final" aria-live="polite"></div>
+  <footer class="pnav"><button class="btn ghost prevtype"></button>
+  <button class="btn ghost reset" style="--accent:var(--muted)">처음부터 다시 하기</button>
+  <button class="btn ghost nexttype"></button></footer>`;
+  const tabs=root.querySelector('.tabs'), main=root.querySelector('.stages');
+  STAGES.forEach(s=>{
+    const b=document.createElement('button'); b.className='tab'; b.setAttribute('role','tab'); b.dataset.s=s.id; b.style.setProperty('--accent',`var(${s.color})`);
+    b.innerHTML=`${s.name}<span class="cnt">0/${COUNT[s.id]}</span>`; b.onclick=()=>show(s.id); tabs.appendChild(b);
+    const sec=document.createElement('section'); sec.className='stage s-'+s.id; sec.style.setProperty('--accent',`var(${s.color})`);
+    sec.innerHTML=`<h2>${s.name}</h2><p class="how">${s.how}</p><div class="body"></div>`; main.appendChild(sec); });
+  function show(id){
+    root.querySelectorAll('.stage').forEach(x=>x.classList.toggle('on',x.classList.contains('s-'+id)));
+    root.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.s===id));
+    // 오른쪽 아래 버튼: 옆에 있는 다음 유형의 퀴즈로 이동
+    // 아래쪽 버튼: 왼쪽은 이전 유형, 오른쪽은 다음 유형의 퀴즈로 이동
+    const k=STAGES.findIndex(s=>s.id===id);
+    [['.prevtype',STAGES[k-1],t=>`← ${t}`],['.nexttype',STAGES[k+1],t=>`${t} →`]].forEach(([sel,st,lab])=>{
+      const bt=root.querySelector(sel); bt.style.visibility=st?'visible':'hidden'; bt.disabled=!st;
+      if(st){ bt.textContent=lab(st.name); bt.style.setProperty('--accent',`var(${st.color})`);
+        bt.onclick=()=>{ show(st.id); root.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'}); }; }
+      else if(sel==='.nexttype'){ // 마지막 퀴즈: 메인 페이지(페이지 목록)로 돌아가기
+        bt.style.visibility='visible'; bt.disabled=false; bt.textContent='메인 페이지로 🏠';
+        bt.style.setProperty('--accent','var(--ink)'); bt.onclick=()=>go(null); } }); }
+  const body=id=>root.querySelector(`.s-${id} .body`);
+  function mark(id,ok){ if(answered.has(id))return; answered.add(id); if(ok)solved.add(id); updateScore(); }
+  function log(e){ if(replaying)return; rec(n).log.push(e); save(); }
+  function fb(el,ok,text){ el.className='fb show '+(ok?'good':'nope'); el.innerHTML=`<b>${ok?'정답!':'아쉬워요'}</b>${T(text)}`; }
+  function updateScore(){
+    const A=answered.size, C=solved.size;
+    root.querySelector('.sc').textContent=`${C} / ${TOTAL}`;
+    root.querySelector('.scbar').style.width=(A/TOTAL*100)+'%';
+    root.querySelector('.prog').textContent=`푼 문제 ${A} / ${TOTAL}`;
+    STAGES.forEach(s=>{ const c=[...answered].filter(k=>k.startsWith(s.id+'-')).length;
+      const t=root.querySelector(`.tab[data-s="${s.id}"]`); t.querySelector('.cnt').textContent=`${c}/${COUNT[s.id]}`; t.classList.toggle('done',c===COUNT[s.id]); });
+    const R=rec(n), fin=root.querySelector('.final'), done=A===TOTAL;
+    if(done&&!R.finishedAt){ R.finishedAt=Date.now(); if(!replaying) setTimeout(()=>fin.scrollIntoView({behavior:'smooth',block:'center'}),300); }
+    R.sum={answered:A,correct:C,total:TOTAL}; save();
+    fin.classList.toggle('show',done);
+    if(done){ const [h,m]=cheer(C,TOTAL), pct=Math.round(C/TOTAL*100), pass=C>=NEED;
+      fin.innerHTML=`<div class="big">${h}</div><p class="cheer">${m}</p>
+      <div class="rcard"><b>${esc(student.id)} ${esc(student.name)}</b><br>${D.badge} · ${esc(D.title)}<br>맞힌 문제 <b>${C} / ${TOTAL}</b> (${pct}%)<br><small>${fmtTime(R.finishedAt)} 완료 · ${R.tries}번째 도전</small></div>
+      ${pass?`<div class="snack yes"><b>🍪 간식 획득!</b>80% 이상 맞혔어요. 이 화면을 선생님께 보여 주세요.</div>`
+            :`<div class="snack no">간식까지 <b>${NEED-C}문제</b> 더 맞히면 돼요. 해설을 읽고 '처음부터 다시 하기'로 다시 도전해 보세요.</div>`}`; }
+    else fin.innerHTML='';
+    updateHome(n); }
+  function replay(){ replaying=true;
+    rec(n).log.forEach(e=>{ const d=root.querySelector(`[data-qid="${e.id}"]`); if(!d)return;
+      const ins=d.querySelectorAll('input');
+      if(e.vals){ ins.forEach((inp,k)=>{ if(!inp.disabled){ inp.value=e.vals[k]??''; d._check(inp); } }); }
+      else if(e.v!==undefined){ const inp=ins[e.k]; if(inp&&!inp.disabled){ inp.value=e.v; d._check(inp); } }
+      else { const b=d.querySelectorAll('.ox button, .opts button')[e.k]; if(b&&!b.disabled) b.click(); } });
+    replaying=false; }
+  function build(){
+    let b;
+    // OX
+    if(on('ox')){
+    b=body('ox'); b.innerHTML='';
+    D.ox.forEach((it,i)=>{
+      const d=document.createElement('div'); d.className='q'; d.dataset.qid='ox-'+i;
+      d.innerHTML=`<p class="qt"><span class="qn">${i+1}</span>${T(it.q)}</p><div class="ox"><button class="o" aria-label="O">O</button><button class="x" aria-label="X">X</button></div><div class="fb"></div>`;
+      const [bo,bx]=d.querySelectorAll('.ox button'), f=d.querySelector('.fb');
+      [bo,bx].forEach((btn,k)=>btn.onclick=()=>{ const ok=(k===0)===it.a;
+        btn.classList.add(ok?'right':'wrong'); if(!ok)(it.a?bo:bx).classList.add('right');
+        bo.disabled=bx.disabled=true; fb(f,ok,it.ex); log({id:'ox-'+i,k}); mark('ox-'+i,ok); });
+      b.appendChild(d);
+    });
+    }
+    // MC
+    if(on('mc')){
+    b=body('mc'); b.innerHTML='';
+    D.mc.forEach((it,i)=>{
+      const d=document.createElement('div'); d.className='q'; d.dataset.qid='mc-'+i;
+      d.innerHTML=`<p class="qt"><span class="qn">${i+1}</span>${T(it.q)}</p>${it.fig?`<div class="mcfig">${fig(it.fig,P+'mc'+i)}</div>`:''}${it.box?`<div class="bogi"><span class="bogi-t">&lt;보기&gt;</span><ul>${it.box.map(([k,t])=>`<li><b>${k}.</b><span>${T(t)}</span></li>`).join('')}</ul></div>`:''}<div class="opts${it.pic?' pic':''}">${it.o.map(o=>`<button>${T(o)}</button>`).join('')}</div><div class="fb"></div>`;
+      const bs=d.querySelectorAll('.opts button'), f=d.querySelector('.fb');
+      bs.forEach((btn,k)=>btn.onclick=()=>{ const ok=k===it.a; btn.classList.add(ok?'right':'wrong'); bs[it.a].classList.add('right');
+        bs.forEach(x=>x.disabled=true); fb(f,ok,it.ex); log({id:'mc-'+i,k}); mark('mc-'+i,ok); });
+      b.appendChild(d);
+    });
+    }
+    // FILL
+    if(on('fill')){
+    b=body('fill'); b.innerHTML='';
+    D.fill.forEach((g,i)=>{
+      const d=document.createElement('div'); d.className='q'; d.dataset.qid='fill-'+i;
+      d.innerHTML=`<p class="qt"><span class="qn">${i+1}</span>${T(g.title)}</p>
+      <div class="cells">${g.cells.map((c,k)=>`<label class="cell">${T(c.l)} ${g.sep||'='} <input data-k="${k}" autocomplete="off" aria-label="빈칸 ${k+1}" enterkeyhint="next"></label>`).join('')}</div>
+      <div class="fb"></div>`;
+      const ins=d.querySelectorAll('input'), f=d.querySelector('.fb');
+      // 칸을 벗어나거나 Enter를 누르면 그 칸을 바로 채점
+      const check=inp=>{ const k=+inp.dataset.k, v=inp.value;
+        if(inp.disabled||v.trim()===''||inp.dataset.last===v)return; inp.dataset.last=v;
+        const ok=same(v,g.cells[k].a); inp.classList.toggle('right',ok); inp.classList.toggle('wrong',!ok);
+        log({id:'fill-'+i,k,v}); mark(`fill-${i}-${k}`,ok); if(ok)inp.disabled=true;
+        if([...ins].every(x=>x.disabled)) fb(f,true,g.ex);
+        else if([...ins].some(x=>x.classList.contains('wrong'))) fb(f,false,'빨간 칸을 다시 계산해 보세요. 다시 맞혀도 점수는 처음 답으로 매겨져요.');
+        else f.className='fb'; };
+      d._check=check;
+      ins.forEach((inp,idx)=>{
+        inp.addEventListener('change',()=>check(inp));
+        inp.addEventListener('keydown',e=>{ if(e.key!=='Enter')return; e.preventDefault(); check(inp);
+          const nx=[...ins].slice(idx+1).find(x=>!x.disabled); if(nx)nx.focus(); else inp.blur(); }); });
+      b.appendChild(d);
+    });
+    }
+    // MAP
+    if(on('map')){
+    b=body('map'); b.innerHTML='';
+    D.map.forEach((it,i)=>{
+      const d=document.createElement('div'); d.className='q';
+      d.innerHTML=`<p class="qt"><span class="qn">${i+1}</span>${T(it.title)}</p><div class="mapbox"></div>
+      <div class="act" style="margin-top:10px"><button class="btn">확인</button><button class="btn ghost">지우기</button></div><div class="fb"></div>`;
+      const box=d.querySelector('.mapbox'), f=d.querySelector('.fb');
+      const st={map:{},sel:null,locked:false,wrong:new Set()};
+      const render=()=>{ box.innerHTML=mapSVG(it.X,it.Y,Object.entries(st.map).map(([a,c])=>[+a,c]),{interactive:!st.locked,sel:st.sel,wrong:st.wrong,uid:P+'m'+i,ok:st.locked,capL:it.capL,capR:it.capR});
+        box.querySelectorAll('.pt').forEach(g=>{
+          const act=()=>{ if(st.locked)return; const side=g.dataset.side, k=+g.dataset.k;
+            if(side==='x'){st.sel=st.sel===k?null:k;} else if(st.sel!==null){st.map[st.sel]=k; st.sel=null; st.wrong.clear();}
+            render(); };
+          g.onclick=act; g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}}; }); };
+      const [bc,bclr]=d.querySelectorAll('.btn');
+      bc.onclick=()=>{ st.wrong.clear(); let miss=0;
+        it.X.forEach((_,k)=>{ if(st.map[k]!==it.ans[k]){miss++; if(st.map[k]!==undefined)st.wrong.add(k);} });
+        if(miss===0){st.locked=true; mark('map-'+i,true); fb(f,true,it.ex||'모든 화살표가 정확해요.');}
+        else fb(f,false,`${miss}개의 원소를 다시 확인해 보세요. 화살표가 없는 원소도 있는지 살펴보세요.`);
+        render(); };
+      bclr.onclick=()=>{ if(st.locked)return; st.map={}; st.sel=null; st.wrong.clear(); f.className='fb'; render(); };
+      render(); b.appendChild(d);
+    });
+    }
+    // MATCH
+    if(on('match')){
+    b=body('match'); b.innerHTML=`<div class="match"><div class="col l"></div><div class="col r"></div></div><div class="fb"></div>`;
+    const ml=b.querySelector('.l'), mr=b.querySelector('.r'), mfb=b.querySelector('.fb');
+    const colors=['--c1','--c2','--c3','--c4','--c6','--c5'];
+    let pickL=null;
+    D.match.forEach((p,i)=>{ const btn=document.createElement('button'); btn.innerHTML=T(p[0]); btn.dataset.i=i;
+      btn.onclick=()=>{ if(btn.classList.contains('done'))return; ml.querySelectorAll('button').forEach(x=>x.classList.remove('pick')); btn.classList.add('pick'); pickL=i; };
+      ml.appendChild(btn); });
+    shuffle(D.match.map((_,i)=>i)).forEach(i=>{ const btn=document.createElement('button'); btn.innerHTML=T(D.match[i][1]); btn.dataset.i=i;
+      btn.onclick=()=>{ if(btn.classList.contains('done')||pickL===null)return;
+        const lb=ml.querySelector(`button[data-i="${pickL}"]`);
+        if(pickL===i){ const c=`var(${colors[i%colors.length]})`; [lb,btn].forEach(x=>{x.classList.remove('pick');x.classList.add('done');x.style.background=c;});
+          mark('match-'+i,true); pickL=null;
+          if(ml.querySelectorAll('.done').length===D.match.length)fb(mfb,true,'모든 짝을 찾았어요.');
+        } else { btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); fb(mfb,false,`그 카드의 짝이 아니에요. 다시 골라 보세요.`); } };
+      mr.appendChild(btn); });
+    }
+    // JUDGE
+    if(on('judge')){
+    b=body('judge'); b.innerHTML='<div class="judge"></div>'; const jg=b.firstChild;
+    D.judge.forEach((it,i)=>{
+      const d=document.createElement('div'); d.className='jcard'; d.dataset.qid='judge-'+i;
+      d.innerHTML=`<p class="qt"><span class="qn">${i+1}</span>${T(it.q||'')}</p>${fig(it.fig,P+'j'+i)}
+      <div class="ox">${it.opts.map(o=>`<button>${T(o)}</button>`).join('')}</div><div class="fb"></div>`;
+      const bs=d.querySelectorAll('.ox button'), f=d.querySelector('.fb');
+      bs.forEach((btn,k)=>btn.onclick=()=>{ const ok=k===it.a; btn.classList.add(ok?'right':'wrong'); bs[it.a].classList.add('right');
+        bs.forEach(x=>x.disabled=true); fb(f,ok,it.ex); log({id:'judge-'+i,k}); mark('judge-'+i,ok); });
+      jg.appendChild(d);
+    });
+    }
+    updateScore();
+  }
+  root.querySelector('.reset').onclick=()=>{
+    if(answered.size&&!confirm('이 페이지를 처음부터 다시 풀까요? 지금 기록은 지워지고 도전 횟수가 1 늘어나요.'))return;
+    const R=rec(n); R.log=[]; R.finishedAt=null; R.tries=(R.tries||1)+(answered.size?1:0);
+    solved=new Set(); answered=new Set(); build(); show(STAGES[0].id); window.scrollTo(0,0);};
+  build(); replay(); updateScore(); show(STAGES[0].id); refreshWho(root);
+  return root;
+}
+const views={};
+const home=document.getElementById('home'), grid=document.getElementById('grid'), app=document.getElementById('app');
+NUMS.forEach((n,k)=>{ const D=ALL[n]; const a=document.createElement('a'); a.className='pcard'; a.href='#p'+n;
+  a.style.setProperty('--accent',`var(${CCOL[k%6]})`); a.dataset.n=n;
+  a.innerHTML=`<span class="pn">${n}<small>p</small></span><span class="ptitle">${D.title}</span><span class="pm"><span class="pc">0/${countOf(D)}</span></span>`;
+  grid.appendChild(a); });
+function updateHome(n){ const c=grid.querySelector(`.pcard[data-n="${n}"]`), tot=countOf(ALL[n]);
+  const S=(DB&&DB.pages[n]&&DB.pages[n].sum)||{answered:0,correct:0}, pc=c.querySelector('.pc');
+  const done=S.answered>=tot, pass=done&&S.correct>=needOf(tot);
+  pc.textContent=done?`${S.correct}/${tot} 맞힘${pass?' 🍪':''}`:`${S.answered}/${tot} 풂`;
+  pc.classList.toggle('snack',pass); c.classList.toggle('done',done); }
+const login=document.getElementById('login');
+function refreshWho(scope=document){ scope.querySelectorAll('.who').forEach(w=>w.textContent=student?`👤 ${student.id} ${student.name}`:''); }
+function clearViews(){ Object.keys(views).forEach(k=>{views[k].remove(); delete views[k];}); }
+let pending=null;
+document.getElementById('loginForm').addEventListener('submit',e=>{ e.preventDefault();
+  const id=document.getElementById('sid').value.trim(), name=document.getElementById('sname').value.trim().replace(/\s+/g,' '), err=document.getElementById('loginErr');
+  if(!/^\d{4,6}$/.test(id)){ err.textContent='학번은 숫자 4~6자리로 입력해 주세요.'; return; }
+  if(name.length<2){ err.textContent='이름을 2글자 이상 입력해 주세요.'; return; }
+  err.textContent=''; student={id,name}; clearViews();
+  const old=store.get(skey()); DB=old||{pages:{}};
+  const cnt=Object.values(DB.pages).filter(p=>p.sum&&p.sum.answered>0).length;
+  document.getElementById('welcome').textContent=old&&cnt?`다시 왔네요, ${name}! 지난번에 풀던 ${cnt}개 페이지의 기록을 불러왔어요.`:`${name}, 환영해요! 페이지를 골라 시작해 보세요.`;
+  if(!store.ok) document.getElementById('saveHelp').textContent='이 화면에서는 기록이 저장되지 않아요. 창을 닫으면 기록이 사라져요.';
+  NUMS.forEach(updateHome); refreshWho(); save(); const p=pending; pending=null; go(p); });
+document.getElementById('logout').onclick=()=>{
+  if(!confirm('다른 학생으로 바꿀까요? 지금까지의 기록은 저장되어 있어요.'))return;
+  student=null; DB=null; clearViews(); NUMS.forEach(updateHome);
+  document.getElementById('sid').value=''; document.getElementById('sname').value=''; go(null); };
+// 미리보기 창(샌드박스)에서는 #주소 이동이 막힐 수 있어서, 클릭으로 직접 화면을 바꿔요.
+function go(n){
+  Object.values(views).forEach(v=>v.hidden=true);
+  if(!student){ pending=n||null; home.hidden=true; login.hidden=false; document.title='공통수학2 함수 퀴즈 놀이터';
+    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    window.scrollTo(0,0); setTimeout(()=>document.getElementById('sid').focus(),50); return; }
+  login.hidden=true;
+  if(n&&ALL[n]){ if(!views[n]){views[n]=makePage(n); app.appendChild(views[n]);} views[n].hidden=false; home.hidden=true;
+    document.title=`${ALL[n].badge} ${ALL[n].title}`; }
+  else { home.hidden=false; document.title='공통수학2 함수 퀴즈 놀이터'; }
+  try{ history.replaceState(null,'',n&&ALL[n]?'#p'+n:location.pathname+location.search); }catch(e){}
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href^="#"]'); if(!a)return;
+  e.preventDefault();
+  const m=a.getAttribute('href').match(/^#p(\d+)$/); go(m?Number(m[1]):null);
+});
+function route(){ const m=location.hash.match(/^#p(\d+)$/); go(m?Number(m[1]):null); }
+window.addEventListener('hashchange',route); route();
+
+</script>
+</body>
+</html>
