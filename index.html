@@ -203,12 +203,16 @@ a.btn{text-decoration:none; display:inline-block}
 .stamp small{font-size:10px; font-family:"Noto Sans KR",sans-serif; margin-top:2px}
 .final .snack .give{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:#e03131}
 .final .snack .give small{display:block; font-family:"Noto Sans KR",sans-serif; font-size:12px; opacity:.85}
+.goalgot{display:block; color:#e03131}
+.goalgot[hidden]{display:none}
 .retrybar{display:none; margin:0 0 14px; padding:10px 14px; border-radius:14px; background:color-mix(in srgb,var(--c4) 12%,var(--card)); border:2px solid var(--c4); font-size:16px; line-height:1.6; word-break:keep-all}
 .retrybar.on{display:block}
 .q.kept, .jcard.kept{display:none}
 .allok{display:none; text-align:center; padding:18px; border-radius:14px; background:var(--okbg); font-size:17px}
 .allok.on{display:block}
 .final .snack .retry{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:var(--c4)}
+.midbtns{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+@media (max-width:640px){ .pnav{flex-wrap:wrap} .pnav .midbtns{order:3; width:100%} .pnav .midbtns .btn{flex:1 1 100%; white-space:nowrap} }
 .final .snack.got{background:var(--card); border:3px solid #e03131; color:#e03131; position:relative}
 .final .snack.got b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
 .cfm{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50}
@@ -358,12 +362,12 @@ function makePage(n){
   <header><div><span class="badge">${D.badge}</span><h1>${[...D.title].map(c=>c===' '?' ':`<span>${c}</span>`).join('')}</h1>
   <p class="sub">${D.src} 내용으로 만든 ${STAGES.length}가지 놀이, ${TOTAL}문제</p></div>
   <div class="score" aria-live="polite"><b class="sc"></b><small>맞힌 문제</small><div class="bar"><i class="scbar"></i></div><small class="prog"></small></div></header>
-  <div class="goal">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요. 80%가 안 되면 '틀린 문제만 재도전하기'로 다시 풀어서 80%를 넘겨도 간식을 받을 수 있어요. (페이지마다 한 번)</small></div>
+  <div class="goal"><span class="goaltxt">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요. 80%가 안 되면 '틀린 문제만 재도전하기'로 다시 풀어서 80%를 넘겨도 간식을 받을 수 있어요. (페이지마다 한 번)</small></span><span class="goalgot" hidden></span></div>
   <div class="retrybar" aria-live="polite"></div>
   <nav class="tabs" role="tablist"></nav><main class="stages"></main>
   <div class="final" aria-live="polite"></div>
   <footer class="pnav"><button class="btn ghost prevtype"></button>
-  <button class="btn ghost reset" style="--accent:var(--c4)">🔁 틀린 문제만 재도전하기</button>
+  <span class="midbtns"><button class="btn ghost reset" style="--accent:var(--c4)">🔁 틀린 문제만 재도전하기</button><button class="btn ghost review" style="--accent:var(--muted)">📖 처음부터 다시 풀기</button></span>
   <button class="btn ghost nexttype"></button></footer>`;
   const tabs=root.querySelector('.tabs'), main=root.querySelector('.stages');
   STAGES.forEach(s=>{
@@ -418,6 +422,9 @@ function makePage(n){
       if(g) g.onclick=()=>askConfirm(`${student.name} 학생에게 이 페이지(${D.badge.replace(/^.*함수 /,'')})의 간식을 주셨나요? '확인'을 누르면 간식 수령 완료로 기록되고, 되돌릴 수 없어요.`,()=>{
         R.snackGiven=Date.now(); save(); updateScore(); }); }
     else fin.innerHTML='';
+    const gt=root.querySelector('.goaltxt'), gg=root.querySelector('.goalgot');
+    gt.hidden=!!R.snackGiven; gg.hidden=!R.snackGiven;
+    if(R.snackGiven) gg.innerHTML=`✅ <b>이 페이지의 간식은 ${fmtTime(R.snackGiven).replace(/ \d+:\d+$/,'')}에 이미 받았어요.</b><br><small>복습으로 다시 풀 수 있지만, 간식은 페이지마다 한 번만 받을 수 있어요.</small>`;
     const rbar=root.querySelector('.retrybar'), K=new Set(R.keep||[]);
     if(R.retryOnly&&!done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 <b>틀린 문제 다시 풀기</b> 중이에요. 맞힌 문제는 그대로 두고 틀린 문제만 보여요. 남은 문제 <b>${TOTAL-A}개</b>`; }
     else if(R.retryOnly&&done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 틀린 문제 다시 풀기를 마쳤어요. 맨 아래 결과를 확인하세요.`; }
@@ -560,6 +567,13 @@ function makePage(n){
     const wrong=answered.size-solved.size;
     if(!wrong){ askConfirm(answered.size?'틀린 문제가 없어요. 모두 맞혔어요! 👍':'아직 푼 문제가 없어요. 문제를 먼저 풀어 보세요.',()=>{}); return; }
     askConfirm(`틀린 ${wrong}문제만 다시 풀까요? 맞힌 문제는 그대로 인정되고, 다시 맞힌 문제는 점수에 더해져요.`,retryWrong); };
+  // 복습용: 모든 문제를 처음부터 다시 풀기 (간식 기록은 유지)
+  root.querySelector('.review').onclick=()=>{
+    const go2=()=>{ const R=rec(n); R.log=[]; R.finishedAt=null; R.retryOnly=false; R.keep=[]; R.tries=(R.tries||1)+(answered.size?1:0); save();
+      solved=new Set(); answered=new Set(); build(); applyRetryView(); updateScore(); show(STAGES[0].id); root.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'}); };
+    if(!answered.size){ go2(); return; }
+    const R0=rec(n);
+    askConfirm(`복습을 위해 모든 문제를 처음부터 다시 풀까요? 지금까지의 답은 지워지고 점수는 새로 매겨져요.${R0.snackGiven?' 이 페이지의 간식은 이미 받았기 때문에, 다시 풀어도 간식은 더 받을 수 없어요.':R0.earned?' 이미 받은 간식 자격은 그대로 남아요.':' 다시 풀어서 80% 이상이 되면 간식을 받을 수 있어요.'}`,go2); };
   build(); replay(); applyRetryView(); updateScore(); show(STAGES.some(x=>x.id===sessTab(n))?sessTab(n):STAGES[0].id); refreshWho(root);
   return root;
 }
