@@ -197,10 +197,14 @@ a.btn{text-decoration:none; display:inline-block}
 .final .snack.no{background:var(--paper); border:2px solid var(--line); color:var(--muted)}
 .pcard .pc.snack{background:var(--c2)}
 .pcard{position:relative}
-.stamp{position:absolute; right:10px; bottom:8px; width:58px; height:58px; border:3px double #e03131; border-radius:50%; color:#e03131;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:"Jua",sans-serif; font-size:15px; line-height:1.1;
-  font-size:14px; transform:rotate(-14deg); background:color-mix(in srgb,#e03131 7%,var(--card)); box-shadow:0 0 0 2px color-mix(in srgb,#e03131 25%,transparent); pointer-events:none}
-.stamp small{font-size:10px; font-family:"Noto Sans KR",sans-serif; margin-top:2px}
+.pcard.got{z-index:1; background:var(--accent); color:#fff; box-shadow:4px 4px 0 color-mix(in srgb,var(--accent) 55%,#000)}
+.pcard.got:hover{box-shadow:6px 6px 0 color-mix(in srgb,var(--accent) 55%,#000)}
+.pcard.got .pn, .pcard.got .pn small, .pcard.got .ptitle{color:#fff}
+.pcard.got .pc{background:#fff; color:var(--accent)}
+.stamp{position:absolute; right:10px; bottom:-16px; width:52px; height:73px; transform:rotate(-12deg); pointer-events:none; filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
+.stamp svg{width:100%; height:100%; display:block; overflow:visible}
+.stamp .st-t{font-family:"Jua",sans-serif; font-size:12.5px; fill:#111}
+.stamp .st-d{font-family:"Noto Sans KR",sans-serif; font-size:7px; font-weight:700; fill:#111}
 .final .snack .give{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:#e03131}
 .final .snack .give small{display:block; font-family:"Noto Sans KR",sans-serif; font-size:12px; opacity:.85}
 .goalgot{display:block; color:#e03131}
@@ -211,6 +215,8 @@ a.btn{text-decoration:none; display:inline-block}
 .allok{display:none; text-align:center; padding:18px; border-radius:14px; background:var(--okbg); font-size:17px}
 .allok.on{display:block}
 .final .snack .retry{display:block; margin:12px auto 2px; font-family:"Jua",sans-serif; font-size:18px; padding:10px 18px; --accent:var(--c4)}
+.pnav .prevtype, .pnav .nexttype{display:flex; flex-direction:column; align-items:center; line-height:1.25; padding-top:6px; padding-bottom:6px}
+.pnav .prevtype small, .pnav .nexttype small{font-size:12px; opacity:.8; font-family:"Noto Sans KR",sans-serif}
 .midbtns{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
 @media (max-width:640px){ .pnav{flex-wrap:wrap} .pnav .midbtns{order:3; width:100%} .pnav .midbtns .btn{flex:1 1 100%; white-space:nowrap} }
 .final .snack.got{background:var(--card); border:3px solid #e03131; color:#e03131; position:relative}
@@ -382,12 +388,12 @@ function makePage(n){
     // 오른쪽 아래 버튼: 옆에 있는 다음 유형의 퀴즈로 이동
     // 아래쪽 버튼: 왼쪽은 이전 유형, 오른쪽은 다음 유형의 퀴즈로 이동
     const k=STAGES.findIndex(s=>s.id===id);
-    [['.prevtype',STAGES[k-1],t=>`← ${t}`],['.nexttype',STAGES[k+1],t=>`${t} →`]].forEach(([sel,st,lab])=>{
+    [['.prevtype',STAGES[k-1],t=>`← 이전 퀴즈<small>${t}</small>`],['.nexttype',STAGES[k+1],t=>`다음 퀴즈 →<small>${t}</small>`]].forEach(([sel,st,lab])=>{
       const bt=root.querySelector(sel); bt.style.visibility=st?'visible':'hidden'; bt.disabled=!st;
-      if(st){ bt.textContent=lab(st.name); bt.style.setProperty('--accent',`var(${st.color})`);
+      if(st){ bt.innerHTML=lab(st.name); bt.style.setProperty('--accent',`var(${st.color})`);
         bt.onclick=()=>{ show(st.id); root.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'}); }; }
       else if(sel==='.nexttype'){ // 마지막 퀴즈: 메인 페이지(페이지 목록)로 돌아가기
-        bt.style.visibility='visible'; bt.disabled=false; bt.textContent='메인 페이지로 🏠';
+        bt.style.visibility='visible'; bt.disabled=false; bt.innerHTML='메인 페이지로 🏠<small>모든 퀴즈 끝</small>';
         bt.style.setProperty('--accent','var(--ink)'); bt.onclick=()=>go(null); } }); }
   const body=id=>root.querySelector(`.s-${id} .body`);
   function mark(id,ok){ if(answered.has(id))return; answered.add(id); if(ok)solved.add(id); updateScore(); }
@@ -583,6 +589,21 @@ NUMS.forEach((n,k)=>{ const D=ALL[n]; const a=document.createElement('a'); a.cla
   a.style.setProperty('--accent',`var(${CCOL[k%6]})`); a.dataset.n=n;
   a.innerHTML=`<span class="pn">${n}<small>p</small></span><span class="ptitle">${D.title}</span><span class="pm"><span class="pc">0/${countOf(D)}</span></span>`;
   grid.appendChild(a); });
+// 금박 테두리와 리본 꼬리가 달린 '간식 완료' 도장
+function stampSVG(id,date){ return `<svg viewBox="10 20 60 84" aria-hidden="true">
+  <defs><linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff6c2"/><stop offset=".3" stop-color="#f3c94a"/><stop offset=".5" stop-color="#b98510"/>
+    <stop offset=".68" stop-color="#ffe27a"/><stop offset="1" stop-color="#9c6b06"/></linearGradient>
+    <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+  <path d="M29 68 L22 100 L28 94 L35 99 L40 72 Z" fill="url(#${id}f)" stroke="#8a5c05" stroke-width=".8"/>
+  <path d="M51 68 L58 100 L52 94 L45 99 L40 72 Z" fill="url(#${id}f)" stroke="#8a5c05" stroke-width=".8"/>
+  <circle cx="40" cy="50" r="28" fill="url(#${id}f)" stroke="#8a5c05" stroke-width=".8"/>
+  <circle cx="40" cy="50" r="23.5" fill="#fff8f4" stroke="#111" stroke-width="2"/>
+  <circle cx="40" cy="50" r="20.5" fill="none" stroke="#111" stroke-width=".8"/>
+  <text class="st-t" x="40" y="46" text-anchor="middle">간식</text>
+  <text class="st-t" x="40" y="58.5" text-anchor="middle">완료</text>
+  <text class="st-d" x="40" y="66.5" text-anchor="middle">${date}</text>
+</svg>`; }
 function updateHome(n){ const c=grid.querySelector(`.pcard[data-n="${n}"]`), tot=countOf(ALL[n]);
   const S=(DB&&DB.pages[n]&&DB.pages[n].sum)||{answered:0,correct:0}, pc=c.querySelector('.pc');
   const P=(DB&&DB.pages[n])||{}, done=S.answered>=tot;
@@ -591,8 +612,10 @@ function updateHome(n){ const c=grid.querySelector(`.pcard[data-n="${n}"]`), tot
   pc.classList.toggle('snack',pass); c.classList.toggle('done',done);
   // 간식 수령 완료 도장
   let st=c.querySelector('.stamp');
+  c.classList.toggle('got',!!P.snackGiven);
   if(P.snackGiven){ if(!st){ st=document.createElement('span'); st.className='stamp'; c.appendChild(st); }
-    const d=new Date(P.snackGiven); st.innerHTML=`간식<br>완료<small>${d.getMonth()+1}/${d.getDate()}</small>`; st.setAttribute('aria-label','간식 수령 완료'); }
+    const d=new Date(P.snackGiven); st.setAttribute('role','img'); st.setAttribute('aria-label',`간식 수령 완료 ${d.getMonth()+1}월 ${d.getDate()}일`);
+    st.innerHTML=stampSVG(`g${n}`,`${d.getMonth()+1}/${d.getDate()}`); }
   else if(st) st.remove(); }
 const login=document.getElementById('login');
 function refreshWho(scope=document){ scope.querySelectorAll('.who').forEach(w=>w.textContent=student?`👤 ${student.id} ${student.name}`:''); }
