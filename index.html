@@ -223,11 +223,62 @@ a.btn{text-decoration:none; display:inline-block}
 @media (max-width:640px){ .pnav{flex-wrap:wrap} .pnav .midbtns{order:3; width:100%} .pnav .midbtns .btn{flex:1 1 100%; white-space:nowrap} }
 .final .snack.got{background:var(--card); border:3px solid #e03131; color:#e03131; position:relative}
 .final .snack.got b{font-family:"Jua",sans-serif; font-weight:400; font-size:24px; display:block}
-.cfm{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50}
+.cfm{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:80}
 .cfm[hidden]{display:none}
 .cfm .box{background:var(--card); color:var(--ink); border:2px solid var(--ink); border-radius:18px; box-shadow:6px 6px 0 var(--ink); max-width:380px; width:100%; padding:20px; text-align:center; line-height:1.7; word-break:keep-all}
 .cfm .row{display:flex; gap:10px; justify-content:center; margin-top:14px}
 .cfm .btn{min-width:110px}
+
+/* ===== 보너스 게임 (유형 3가지를 모두 풀면 100초) ===== */
+.gamehint{background:var(--card); border:2px dashed var(--c4); border-radius:16px; padding:10px 16px; margin:0 0 16px; font-size:16px; line-height:1.6; word-break:keep-all}
+.gamehint b{color:var(--c4)}
+.gamehint .gdots{display:inline-flex; gap:4px; margin-left:6px; vertical-align:-2px}
+.gamehint .gdots i{width:14px; height:14px; border-radius:50%; border:2px solid var(--c4)}
+.gamehint .gdots i.on{background:var(--c4)}
+.gameov{position:fixed; inset:0; z-index:70; background:var(--paper); display:flex; flex-direction:column; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+.gameov .gcard{margin:auto; max-width:420px; width:calc(100% - 32px); background:var(--card); border:2px solid var(--ink); border-radius:22px; box-shadow:6px 6px 0 var(--ink); padding:24px 20px; text-align:center; line-height:1.7; word-break:keep-all}
+.gameov .gcard .big{font-family:"Jua",sans-serif; font-size:30px; color:var(--c5); line-height:1.3}
+.gameov .gcard p{margin:10px 0 16px; font-size:17px}
+.gameov .gcard .gico{font-size:54px; line-height:1.2}
+.gameov .gcard .btn{--accent:var(--c4); font-family:"Jua",sans-serif; font-size:20px; padding:10px 28px}
+.gameov .gbar{display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--card); border-bottom:2px solid var(--ink)}
+.gameov .gname{font-family:"Jua",sans-serif; font-size:18px; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.gameov .gleft{font-family:"Jua",sans-serif; font-size:22px; color:var(--c1); font-variant-numeric:tabular-nums; min-width:68px; text-align:right}
+.gameov .gquit{--accent:var(--muted); padding:4px 12px; font-size:14px}
+.gameov .gtime{height:6px; background:var(--line)}
+.gameov .gtime i{display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4)); transition:width 1s linear}
+.gameov iframe{flex:1; min-height:0; width:100%; border:0; display:block; background:#fff}
+/* 휴대폰·태블릿: 주소창이 생기고 사라져도 화면에 꼭 맞게, 끌어도 뒤 화면이 밀리지 않게 */
+.gameov{bottom:auto; height:100vh; height:100dvh; overscroll-behavior:none; padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px)}
+.gameov .gcard,.gameov .gbar{touch-action:manipulation}
+.gameov .gcard{max-height:calc(100% - 24px); overflow:auto}
+.gameov .gquit,.gameov .gcard .btn{min-height:44px}
+@media (max-width:640px){
+  .gamehint{font-size:15px; padding:10px 12px}
+  .gameov .gbar{padding:6px 10px; gap:8px}
+  .gameov .gname{font-size:16px}
+  .gameov .gleft{font-size:20px; min-width:56px}
+  .gameov .gcard{padding:20px 16px}
+  .gameov .gcard .big{font-size:26px}
+  .gameov .gcard .gico{font-size:46px}
+  .gameov .gcard .btn{width:100%}
+}
+@media (min-width:641px) and (max-width:1100px){
+  .gameov .gbar{padding:10px 18px}
+  .gameov .gname{font-size:21px}
+  .gameov .gleft{font-size:26px}
+  .gameov .gcard{max-width:500px; padding:30px 26px}
+  .gameov .gcard p{font-size:19px}
+  .gameov .gcard .btn{font-size:22px; padding:12px 34px; min-height:52px}
+}
+/* 휴대폰 가로 화면: 위쪽 띠를 얇게 해서 게임 화면을 넓게 */
+@media (max-height:500px) and (orientation:landscape){
+  .gameov .gbar{padding:3px 10px}
+  .gameov .gname{font-size:15px} .gameov .gleft{font-size:18px}
+  .gameov .gquit{min-height:34px; padding:2px 10px}
+  .gameov .gtime{height:4px}
+  .gameov .gcard{padding:14px 16px; line-height:1.5} .gameov .gcard .gico{display:none} .gameov .gcard p{margin:6px 0 10px}
+}
 
 /* ===== 이전 학습 (중학교 연결) ===== */
 .prev{margin:0 0 16px}
@@ -365,6 +416,42 @@ const ENABLED=['ox','mc','fill','judge'];
 const on=id=>ENABLED.includes(id);
 const countOf=D=>(on('ox')?D.ox.length:0)+(on('mc')?D.mc.length:0)+(on('fill')?D.fill.reduce((a,g)=>a+g.cells.length,0):0)+(on('map')?D.map.length:0)+(on('match')?D.match.length:0)+(on('judge')?D.judge.length:0);
 const progress={};
+// 보너스 게임: 한 페이지에서 문제 유형 3가지를 끝까지 풀면 아래 게임 중 하나가 무작위로 열리고 100초 동안 할 수 있어요
+const GAME_NEED=3, GAME_SEC=100;
+const GAMES=[
+  {name:'두더지 잡기',icon:'🔨',src:'games/mole.html'},
+  {name:'2048 블록 드롭',icon:'🧊',src:'games/drop2048.html'},
+  {name:'손가락 DDR',icon:'🕺',src:'games/ddr.html'},
+  {name:'컬러 스네이크',icon:'🐍',src:'games/snake.html'},
+  {name:'터치 테트리스',icon:'🧱',src:'games/tetris.html'}];
+function openGame(){
+  const g=GAMES[Math.floor(Math.random()*GAMES.length)];
+  const ov=document.createElement('div'); ov.className='gameov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  ov.innerHTML=`<div class="gcard"><div class="big">🎉 보너스 게임 열림!</div><div class="gico">${g.icon}</div>
+    <p>문제 유형 ${GAME_NEED}가지를 끝까지 풀었어요.<br>오늘의 게임은 <b>${g.name}</b>!<br><b>${GAME_SEC}초</b> 동안 할 수 있어요.<br><small>시간이 끝나면 퀴즈로 돌아와요.</small></p>
+    <button class="btn gstart" type="button">게임 시작 ▶</button></div>`;
+  document.body.appendChild(ov); const prevOverflow=document.body.style.overflow; document.body.style.overflow='hidden';
+  ov.querySelector('.gstart').focus();
+  let timer=null, ifr=null;
+  const close=()=>{ ov.remove(); document.body.style.overflow=prevOverflow; };
+  const finish=quit=>{ clearInterval(timer);
+    try{ const w=ifr&&ifr.contentWindow; if(w&&typeof w.__mgSave==='function') w.__mgSave(); }catch(e){}
+    if(ifr){ try{ ifr.src='about:blank'; }catch(e){} ifr.remove(); }
+    ov.innerHTML=`<div class="gcard"><div class="big">${quit?'👋 게임 끝!':'⏰ 시간 끝!'}</div>
+      <p>재미있었나요? 이제 남은 퀴즈도 마저 풀어 봐요! 💪</p><button class="btn gback" type="button">퀴즈로 돌아가기</button></div>`;
+    const b=ov.querySelector('.gback'); b.onclick=close; b.focus(); };
+  ov.querySelector('.gstart').onclick=()=>{
+    ov.innerHTML=`<div class="gbar"><span class="gname">🎮 ${g.name}</span><span class="gleft">${GAME_SEC}초</span><button class="btn ghost gquit" type="button">그만하기</button></div>
+      <div class="gtime"><i></i></div><iframe title="${g.name}" allow="autoplay; fullscreen"></iframe>`;
+    ifr=ov.querySelector('iframe'); ifr.src=g.src;
+    // 휴대폰·태블릿에서 다른 앱으로 넘어가거나 화면이 꺼져 있는 동안에는 시간이 줄지 않아요
+    const left=ov.querySelector('.gleft'), bar=ov.querySelector('.gtime i'); let ms=GAME_SEC*1000, last=Date.now();
+    const tick=()=>{ const now=Date.now(); if(!document.hidden) ms-=Math.min(now-last,1000); last=now;
+      const s=Math.max(0,Math.ceil(ms/1000));
+      left.textContent=s+'초'; bar.style.width=(s/GAME_SEC*100)+'%'; if(s<=0) finish(false); };
+    timer=setInterval(tick,250); tick();
+    ov.querySelector('.gquit').onclick=()=>askConfirm('게임을 그만할까요? 남은 시간은 다시 쓸 수 없어요.',()=>finish(true)); };
+}
 // 확인 창 (게시된 페이지에서는 브라우저 confirm 창이 막힐 수 있어 화면 안에 직접 띄움)
 function askConfirm(msg,yes){ const c=document.getElementById('cfm'); document.getElementById('cfmMsg').textContent=msg; c.hidden=false;
   const close=ok=>{ c.hidden=true; if(ok)yes(); }; document.getElementById('cfmYes').onclick=()=>close(true); document.getElementById('cfmNo').onclick=()=>close(false);
@@ -470,6 +557,7 @@ function makePage(n){
   <p class="sub">${D.src} 내용으로 만든 ${STAGES.length}가지 놀이, ${TOTAL}문제</p></div>
   <div class="score" aria-live="polite"><b class="sc"></b><small>맞힌 문제</small><div class="bar"><i class="scbar"></i></div><small class="prog"></small></div></header>
   <div class="goal"><span class="goaltxt">🎯 이 페이지의 <b>${TOTAL}문제</b>를 모두 풀면 맞힌 개수에 따라 응원 메시지가 나와요. <b>${NEED}문제 이상</b>(80% 이상) 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받으세요! 🍪<br><small>점수는 문제마다 처음 낸 답으로 매겨져요. 80%가 안 되면 '틀린 문제만 재도전하기'로 다시 풀어서 80%를 넘겨도 간식을 받을 수 있어요. (페이지마다 한 번)</small></span><span class="goalgot" hidden></span></div>
+  <div class="gamehint" aria-live="polite"></div>
   ${prevHTML(D,n)}
   <div class="retrybar" aria-live="polite"></div>
   <nav class="tabs" role="tablist"></nav><main class="stages"></main>
@@ -498,7 +586,14 @@ function makePage(n){
         bt.style.visibility='visible'; bt.disabled=false; bt.innerHTML='메인 페이지로 🏠<small>모든 퀴즈 끝</small>';
         bt.style.setProperty('--accent','var(--ink)'); bt.onclick=()=>go(null); } }); }
   const body=id=>root.querySelector(`.s-${id} .body`);
-  function mark(id,ok){ if(answered.has(id))return; answered.add(id); if(ok)solved.add(id); updateScore(); }
+  function mark(id,ok){ if(answered.has(id))return; answered.add(id); if(ok)solved.add(id); updateScore(); if(!replaying) checkGame(); }
+  // 보너스 게임: 문제 유형 중 3가지(GAME_NEED)를 끝까지 풀면(맞고 틀림 상관없이) 페이지마다 한 번 열려요
+  const typesDone=()=>STAGES.filter(s=>[...answered].filter(k=>k.startsWith(s.id+'-')).length===COUNT[s.id]).length;
+  function checkGame(){ const R=rec(n); if(R.gameAt||typesDone()<GAME_NEED)return;
+    R.gameAt=Date.now(); save(); updateGameHint(); setTimeout(openGame,700); }
+  function updateGameHint(){ const R=rec(n), k=Math.min(GAME_NEED,typesDone()), h=root.querySelector('.gamehint');
+    h.innerHTML=R.gameAt?`🎮 이 페이지의 <b>보너스 게임</b>은 이미 했어요. 다른 페이지에서도 유형 ${GAME_NEED}가지를 다 풀면 또 할 수 있어요!`
+      :`🎮 문제 유형 ${STAGES.length}가지 중 <b>${GAME_NEED}가지</b>를 끝까지 풀면 <b>${GAME_SEC}초 보너스 게임</b>이 열려요! (틀려도 괜찮아요)<span class="gdots" aria-label="${k}가지 완료">${Array.from({length:GAME_NEED},(_,i)=>`<i class="${i<k?'on':''}"></i>`).join('')}</span>`; }
   function log(e){ if(replaying)return; rec(n).log.push(e); save(); }
   function fb(el,ok,text){ el.className='fb show '+(ok?'good':'nope'); el.innerHTML=`<b>${ok?'정답!':'아쉬워요'}</b>${T(text)}`; }
   function updateScore(){
@@ -537,7 +632,7 @@ function makePage(n){
     if(R.retryOnly&&!done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 <b>틀린 문제 다시 풀기</b> 중이에요. 맞힌 문제는 그대로 두고 틀린 문제만 보여요. 남은 문제 <b>${TOTAL-A}개</b>`; }
     else if(R.retryOnly&&done){ rbar.classList.add('on'); rbar.innerHTML=`🔁 틀린 문제 다시 풀기를 마쳤어요. 맨 아래 결과를 확인하세요.`; }
     else rbar.classList.remove('on');
-    updateHome(n); }
+    updateGameHint(); updateHome(n); }
   function replay(){ replaying=true;
     rec(n).log.forEach(e=>{ const d=root.querySelector(`[data-qid="${e.id}"]`); if(!d)return;
       const ins=d.querySelectorAll('input');
