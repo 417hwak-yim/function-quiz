@@ -442,7 +442,7 @@ function openGame(){
   ov.querySelector('.gstart').focus();
   let timer=null, ifr=null;
   const close=()=>{ ov.remove(); document.body.style.overflow=prevOverflow; };
-  const finish=quit=>{ clearInterval(timer);
+  let finish=quit=>{ clearInterval(timer);
     try{ const w=ifr&&ifr.contentWindow; if(w&&typeof w.__mgSave==='function') w.__mgSave(); }catch(e){}
     if(ifr){ try{ ifr.src='about:blank'; }catch(e){} ifr.remove(); }
     ov.innerHTML=`<div class="gcard"><div class="big">${quit?'👋 게임 끝!':'⏰ 시간 끝!'}</div>
@@ -456,9 +456,14 @@ function openGame(){
     ifr=ov.querySelector('iframe'); let html=null;
     try{ html=JSON.parse(document.getElementById('gamesrc').textContent)[g.src.replace(/^games\/|\.html$/g,'')]; }catch(e){}
     if(html) ifr.srcdoc=html; else ifr.src=g.src;
+    // 게임 안의 멈춤·종료 버튼은 숨기고 위쪽 띠의 '멈춤'·'나가기'만 써요 (같은 버튼이 두 번 보이지 않게)
+    ifr.addEventListener('load',()=>{ try{ const d=ifr.contentDocument, st=d.createElement('style');
+      st.textContent='#sys-controls>button:nth-child(-n+2),#pause-btn{display:none!important}#k-pause,#k-end{visibility:hidden!important}'
+        +'@media (max-width:580px){.side-panel #start-btn{grid-column:1 / -1!important}}';
+      d.head.appendChild(st); }catch(e){} });
     // 휴대폰·태블릿에서 다른 앱으로 넘어가거나 화면이 꺼져 있는 동안에는 시간이 줄지 않아요
     const left=ov.querySelector('.gleft'), bar=ov.querySelector('.gtime i'); let ms=GAME_SEC*1000, last=Date.now();
-    let paused=false, inner=null;
+    let paused=false;
     const tick=()=>{ const now=Date.now(); if(!document.hidden&&!paused) ms-=Math.min(now-last,1000); last=now;
       const s=Math.max(0,Math.ceil(ms/1000));
       left.textContent=s+'초'; bar.style.width=(s/GAME_SEC*100)+'%'; if(s<=0) finish(false); };
@@ -468,9 +473,13 @@ function openGame(){
     const innerBtn=()=>{ try{ return ifr.contentDocument.querySelector('#sys-controls button, #pause-btn, #k-pause'); }catch(e){ return null; } };
     const setPause=v=>{ if(paused===v)return; paused=v; tick();
       veil.hidden=!v; pb.textContent=v?'▶ 계속':'⏸ 멈춤'; ov.querySelector('.gvleft').textContent=left.textContent;
-      try{ if(v){ const b=innerBtn(); if(b){ const t=b.textContent; b.click(); inner=b.textContent!==t?b:null; } }
-        else if(inner){ inner.click(); inner=null; } }catch(e){ inner=null; }
+      // 게임 안 버튼 글자에 '계속'이 있으면 게임이 멈춘 상태예요. 멈출 땐 멈추고, 이어 할 땐 다시 움직이게 맞춰요
+      try{ const b=innerBtn(); if(b&&b.textContent.includes('계속')!==v) b.click(); }catch(e){}
       (v?ov.querySelector('.gresume'):pb).focus(); };
+    // 다른 앱으로 넘어가면 게임이 저절로 멈추므로, 위쪽 '멈춤'도 같이 눌린 상태로 맞춰 둬요
+    const onHide=()=>{ if(document.hidden&&ov.isConnected&&ifr.isConnected) setPause(true); };
+    document.addEventListener('visibilitychange',onHide);
+    const _fin=finish; finish=q=>{ document.removeEventListener('visibilitychange',onHide); _fin(q); };
     pb.onclick=()=>setPause(!paused);
     ov.querySelector('.gresume').onclick=()=>setPause(false);
     ov.querySelector('.gquit').onclick=()=>{ const was=paused; setPause(true);
