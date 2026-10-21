@@ -229,7 +229,7 @@ a.btn{text-decoration:none; display:inline-block}
 .cfm .row{display:flex; gap:10px; justify-content:center; margin-top:14px}
 .cfm .btn{min-width:110px}
 
-/* ===== 보너스 게임 (유형 3가지를 모두 풀면 100초) ===== */
+/* ===== 보너스 게임 (유형 3가지를 모두 풀면 60초) ===== */
 .gamehint{background:var(--card); border:2px dashed var(--c4); border-radius:16px; padding:10px 16px; margin:0 0 16px; font-size:16px; line-height:1.6; word-break:keep-all}
 .gamehint b{color:var(--c4)}
 .gamehint .gdots{display:inline-flex; gap:4px; margin-left:6px; vertical-align:-2px}
@@ -385,7 +385,7 @@ button:active:not(:disabled),a.btn:active,.pcard:active{transform:translate(1px,
 <li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
 <li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
 <li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪 80%가 안 되면 <b>'틀린 문제만 재도전하기'</b>로 다시 풀어서 80%를 넘겨도 받을 수 있어요. (페이지마다 한 번)</li>
-<li>한 페이지의 퀴즈 <b>4종류 중 3종류</b>를 끝까지 풀면(틀려도 괜찮아요) <b>보너스 게임</b>이 무작위로 열려 <b>100초</b> 동안 할 수 있어요! 🎮 목숨을 다 쓰면 시간이 남아도 끝나요. (페이지마다 한 번)</li>
+<li>한 페이지의 퀴즈 <b>4종류 중 3종류</b>를 끝까지 풀면(틀려도 괜찮아요) <b>보너스 게임</b>이 무작위로 열려 <b>60초</b> 동안 할 수 있어요! 🎮 목숨을 다 쓰면 시간이 남아도 끝나요. (페이지마다 한 번)</li>
 </ol></div>
   </div>
   <div id="home" hidden>
@@ -398,7 +398,7 @@ button:active:not(:disabled),a.btn:active,.pcard:active{transform:translate(1px,
 <li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
 <li>다 풀면 맞힌 개수에 따라 <b>응원 메시지</b>가 나와요.</li>
 <li>한 페이지에서 <b>80% 이상</b> 맞히면 결과 화면을 선생님께 보여 주고 <b>간식</b>을 받아요! 🍪 80%가 안 되면 <b>'틀린 문제만 재도전하기'</b>로 다시 풀어서 80%를 넘겨도 받을 수 있어요. (페이지마다 한 번)</li>
-<li>한 페이지의 퀴즈 <b>4종류 중 3종류</b>를 끝까지 풀면(틀려도 괜찮아요) <b>보너스 게임</b>이 무작위로 열려 <b>100초</b> 동안 할 수 있어요! 🎮 목숨을 다 쓰면 시간이 남아도 끝나요. (페이지마다 한 번)</li>
+<li>한 페이지의 퀴즈 <b>4종류 중 3종류</b>를 끝까지 풀면(틀려도 괜찮아요) <b>보너스 게임</b>이 무작위로 열려 <b>60초</b> 동안 할 수 있어요! 🎮 목숨을 다 쓰면 시간이 남아도 끝나요. (페이지마다 한 번)</li>
 </ol></div>
     <div class="grid" id="grid"></div>
     <p class="help" id="saveHelp">푼 기록은 학번과 이름별로 이 기기에 저장돼요. 다른 기기에서는 이어지지 않아요.</p>
@@ -424,8 +424,8 @@ const ENABLED=['ox','mc','fill','judge'];
 const on=id=>ENABLED.includes(id);
 const countOf=D=>(on('ox')?D.ox.length:0)+(on('mc')?D.mc.length:0)+(on('fill')?D.fill.reduce((a,g)=>a+g.cells.length,0):0)+(on('map')?D.map.length:0)+(on('match')?D.match.length:0)+(on('judge')?D.judge.length:0);
 const progress={};
-// 보너스 게임: 한 페이지에서 문제 유형 3가지를 끝까지 풀면 아래 게임 중 하나가 무작위로 열리고 100초 동안 할 수 있어요
-const GAME_NEED=3, GAME_SEC=100;
+// 보너스 게임: 한 페이지에서 문제 유형 3가지를 끝까지 풀면 아래 게임 중 하나가 무작위로 열리고 60초 동안 할 수 있어요
+const GAME_NEED=3, GAME_SEC=60;
 // 목숨(하트)을 다 써서 게임 오버가 되면 남은 시간이 있어도 보너스 게임이 끝나요
 const GAMES=[
   {name:'10 만들기',icon:'🔟',src:'games/make10.html'},
