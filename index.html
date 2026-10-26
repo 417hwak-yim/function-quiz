@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#F6F8FF">
 <title>공통수학2 함수 퀴즈 놀이터</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,18 +17,8 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --paper:#151A2E; --grid:#222A47; --ink:#EEF1FF; --muted:#A5ADCF; --card:#1D2340; --line:#38416A;
-    --c1:#FF7A77; --c2:#FFC23D; --c3:#2ED3C4; --c4:#6E95FF; --c5:#B98BF2; --c6:#FF7CC4;
-    --ok:#3BCB7A; --bad:#FF6467; --okbg:#173A2A; --badbg:#432126;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#151A2E; --grid:#222A47; --ink:#EEF1FF; --muted:#A5ADCF; --card:#1D2340; --line:#38416A;
-  --c1:#FF7A77; --c2:#FFC23D; --c3:#2ED3C4; --c4:#6E95FF; --c5:#B98BF2; --c6:#FF7CC4;
-  --ok:#3BCB7A; --bad:#FF6467; --okbg:#173A2A; --badbg:#432126;
-}
+/* 기기를 다크 모드로 써도 이 페이지는 항상 밝은 화면으로 보여요 */
+html{color-scheme:light only}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
@@ -379,7 +371,7 @@ button:active:not(:disabled),a.btn:active,.pcard:active{transform:translate(1px,
       <label>이름<input id="sname" maxlength="10" placeholder="예: 홍길동" autocomplete="off"></label>
       <p class="err" id="loginErr" aria-live="polite"></p>
       <button class="btn" type="button">퀴즈 시작하기</button>
-      <p class="note">같은 기기, 같은 브라우저에서 같은 학번과 이름으로 다시 들어오면 이전에 푼 기록을 그대로 볼 수 있어요.</p>
+      <p class="note">같은 학번과 이름으로 다시 들어오면 다른 기기에서도 이전에 푼 기록을 이어서 볼 수 있어요. 학번과 이름은 매번 똑같이 써 주세요.</p>
     </form>
     <div class="guide"><h3>이렇게 풀어요</h3><ol>
 <li>활동지 페이지를 골라 그 페이지의 퀴즈를 <b>모두</b> 풀어요.</li>
@@ -401,7 +393,7 @@ button:active:not(:disabled),a.btn:active,.pcard:active{transform:translate(1px,
 <li>한 페이지의 퀴즈 <b>4종류 중 3종류</b>를 끝까지 풀면(틀려도 괜찮아요) <b>보너스 게임</b>이 무작위로 열려 <b>60초</b> 동안 할 수 있어요! 🎮 목숨을 다 쓰면 시간이 남아도 끝나요. (페이지마다 한 번)</li>
 </ol></div>
     <div class="grid" id="grid"></div>
-    <p class="help" id="saveHelp">푼 기록은 학번과 이름별로 이 기기에 저장돼요. 다른 기기에서는 이어지지 않아요.</p>
+    <p class="help" id="saveHelp">푼 기록은 학번과 이름별로 저장돼요.</p>
   </div>
   <div id="app"></div>
 </div>
@@ -458,7 +450,7 @@ function openGame(){
     // 게임은 이 파일 안(gamesrc)에 들어 있어서 index.html 하나만 올려도 열려요
     ifr=ov.querySelector('iframe'); let html=null;
     try{ html=JSON.parse(document.getElementById('gamesrc').textContent)[g.src.replace(/^games\/|\.html$/g,'')]; }catch(e){}
-    if(html) ifr.srcdoc=html; else ifr.src=g.src;
+    if(html){ html=html.replace(/prefers-color-scheme:\s*dark/g,'prefers-color-scheme: never').replace(/<head>/i,'<head><meta name="color-scheme" content="light only"><style>html{color-scheme:light only}</style>'); ifr.srcdoc=html; } else ifr.src=g.src;
     // 게임 안의 멈춤·종료 버튼은 숨기고 위쪽 띠의 '멈춤'·'나가기'만 써요 (같은 버튼이 두 번 보이지 않게)
     ifr.addEventListener('load',()=>{ try{ const d=ifr.contentDocument, st=d.createElement('style');
       st.textContent='#sys-controls>button:nth-child(-n+2),#pause-btn{display:none!important}#k-pause,#k-end{visibility:hidden!important}'
@@ -498,9 +490,50 @@ const store={mem:{},ok:true,
   get(k){ try{const v=localStorage.getItem(k); if(v)return JSON.parse(v);}catch(e){this.ok=false;} return this.mem[k]||null; },
   set(k,v){ this.mem[k]=v; try{localStorage.setItem(k,JSON.stringify(v));}catch(e){this.ok=false;} } };
 let student=null, DB=null;
+// 브라우저가 저장 공간이 부족할 때 기록을 지우지 않도록 요청 (지원하는 브라우저에서만)
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+// 이 기기에 남아 있는 같은 학생의 기록을 모두 찾아 합침 (예전 버전 저장 이름, 이름 띄어쓰기 차이 포함)
+function localRecords(){ const want=String(student.name).replace(/\s/g,''), found=[];
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(!k||k===skey()||!k.includes(student.id))continue;
+      const parts=k.split(':'); if(parts.length<3)continue;
+      const kid=parts[parts.length-2], kname=parts[parts.length-1].replace(/\s/g,'');
+      if(kid!==student.id||kname!==want)continue;
+      try{ const v=JSON.parse(localStorage.getItem(k)); if(v&&v.pages) found.push(v); }catch(e){} } }catch(e){}
+  return found; }
+// ───────── 서버 저장 (구글 시트) ─────────
+// 구글 Apps Script 웹 앱 주소를 따옴표 안에 붙여 넣으세요. 비워 두면 예전처럼 이 기기에만 저장돼요.
+const SYNC_URL='https://script.google.com/macros/s/AKfycbxzv5v0wSwJ_RCEud6de9yUulIJTb7m8HAaFa-FJiAgAY3j_lTX0QrQprhap4xCKWzwwQ/exec';
+const sync={state:'off', timer:null, dirty:false};
+function syncMsg(){ const h=document.getElementById('saveHelp'); if(!h)return;
+  if(!store.ok&&!SYNC_URL){ h.textContent='이 화면에서는 기록이 저장되지 않아요. 창을 닫으면 기록이 사라져요.'; return; }
+  h.textContent = !SYNC_URL ? '푼 기록은 학번과 이름별로 이 기기에 저장돼요. 다른 기기에서는 이어지지 않아요.'
+    : sync.state==='fail' ? '⚠️ 인터넷 연결이 불안정해 기록을 서버에 저장하지 못했어요. 연결되면 자동으로 다시 저장해요.'
+    : '✅ 푼 기록은 학번과 이름별로 서버에 저장돼요. 다른 기기에서도 같은 학번·이름이면 이어서 볼 수 있어요.'; }
+function withTimeout(pr,ms){ return Promise.race([pr,new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),ms))]); }
+async function pullRemote(){ if(!SYNC_URL)return null;
+  const u=`${SYNC_URL}?action=load&id=${encodeURIComponent(student.id)}&name=${encodeURIComponent(student.name)}&t=${Date.now()}`;
+  const r=await withTimeout(fetch(u,{redirect:'follow'}),9000); const j=await r.json();
+  if(!j.ok) throw new Error(j.error||'load fail'); return j.data||null; }
+function summaryText(){ return NUMS.map(n=>{ const P=DB.pages[n]; if(!P||!P.sum||!P.sum.answered)return null;
+  return `p${n} ${P.sum.correct}/${P.sum.total}${P.snackGiven?' 🍪':P.earned?' ★':''}`; }).filter(Boolean).join(' · '); }
+function payload(){ return JSON.stringify({action:'save', id:student.id, name:student.name, summary:summaryText(), data:DB}); }
+async function pushRemote(){ if(!SYNC_URL||!student||!DB)return; clearTimeout(sync.timer); sync.timer=null; sync.dirty=false;
+  try{ const r=await withTimeout(fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload()}),12000);
+    const j=await r.json(); if(!j.ok) throw new Error(j.error); if(sync.state!=='ok'){sync.state='ok'; syncMsg();} }
+  catch(e){ sync.dirty=true; sync.state='fail'; syncMsg(); sync.timer=setTimeout(()=>{ sync.timer=null; pushRemote(); },15000); } }
+// 반 전체가 동시에 풀어도 서버가 밀리지 않도록 8초에 한 번만 모아서 보냄 (페이지를 닫거나 앱을 바꿀 때는 바로 보냄)
+function schedulePush(){ if(!SYNC_URL)return; sync.dirty=true; if(!sync.timer) sync.timer=setTimeout(()=>{ sync.timer=null; pushRemote(); },8000); }
+function flushPush(){ if(!SYNC_URL||!sync.dirty||!student||!DB)return; sync.dirty=false; clearTimeout(sync.timer); sync.timer=null;
+  try{ navigator.sendBeacon(SYNC_URL,new Blob([payload()],{type:'text/plain;charset=utf-8'})); }catch(e){} }
+// 두 기록을 합침: 더 최근에 저장된 쪽을 기준으로 하고, 간식·보너스 게임처럼 '한 번만' 기록은 어느 쪽에 있든 남김
+function mergeDB(a,b){ if(!a||!a.pages)return b; if(!b||!b.pages)return a;
+  const [base,other]=(a.updated||0)>=(b.updated||0)?[a,b]:[b,a], out=JSON.parse(JSON.stringify(base));
+  Object.entries(other.pages).forEach(([k,p])=>{ const q=out.pages[k]; if(!q){ out.pages[k]=p; return; }
+    ['snackGiven','earned','first','gameAt'].forEach(f=>{ if(p[f]&&!q[f]) q[f]=p[f]; }); });
+  return out; }
 const skey=()=>`fnquiz:v1:${student.id}:${student.name}`;
 function rec(n){ DB.pages[n]=DB.pages[n]||{log:[],tries:1,finishedAt:null,sum:null}; return DB.pages[n]; }
-function save(){ if(!student)return; DB.updated=Date.now(); store.set(skey(),DB); }
+function save(){ if(!student)return; DB.updated=Date.now(); store.set(skey(),DB); schedulePush(); }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtTime=t=>{ const d=new Date(t); const z=x=>String(x).padStart(2,'0'); return `${d.getMonth()+1}월 ${d.getDate()}일 ${z(d.getHours())}:${z(d.getMinutes())}`; };
 const needOf=T=>Math.ceil(T*0.8-1e-9);
@@ -857,17 +890,35 @@ function clearViews(){ Object.keys(views).forEach(k=>{views[k].remove(); delete 
 let pending=null;
 // 새로 고침해도 로그인과 보던 화면이 유지되도록 '이 탭'에만 기억 (탭을 닫으면 사라짐)
 const SKEY='fnquiz:session';
+// QR을 카카오톡·네이버 앱 등으로 찍으면 '앱 안 브라우저'로 열려 창을 닫을 때 기록이 지워질 수 있어요 → 기본 브라우저로 다시 열기
+(function outOfInApp(){ const ua=navigator.userAgent||'';
+  const inApp=/KAKAOTALK|NAVER\(inapp|NAVER|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|Whale\/.*inapp|; wv\)/i.test(ua);
+  if(!inApp)return; const url=location.href;
+  if(/KAKAOTALK/i.test(ua)){ location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(url); return; }
+  if(/Android/i.test(ua)){ location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;end'; return; }
+  const bar=document.createElement('div');
+  bar.style.cssText='position:sticky;top:0;z-index:50;background:#FFF4CC;border-bottom:2px solid #E0B400;padding:10px 14px;font-size:15px;line-height:1.6;text-align:center;word-break:keep-all';
+  bar.innerHTML='⚠️ 지금은 <b>앱 안의 브라우저</b>로 열려 있어서 기록이 저장되지 않을 수 있어요.<br>화면의 <b>⋯</b> 또는 <b>공유</b> 버튼을 눌러 <b>Safari로 열기</b>를 선택한 뒤 풀어 주세요.';
+  document.body.prepend(bar); })();
 function sessGet(){ try{ return JSON.parse(sessionStorage.getItem(SKEY)||'null'); }catch(e){ return null; } }
 function sessSet(patch){ if(!student)return; try{ const o=sessGet()||{}; Object.assign(o,{id:student.id,name:student.name},patch); sessionStorage.setItem(SKEY,JSON.stringify(o)); }catch(e){} }
 function sessClear(){ try{ sessionStorage.removeItem(SKEY); }catch(e){} }
 function sessTab(n){ const o=sessGet(); return o&&o.tabs&&o.tabs[n]; }
-function doLogin(id,name,restored){
+async function doLogin(id,name,restored){
   student={id,name}; clearViews();
-  const old=store.get(skey()); DB=old||{pages:{}};
+  let local=store.get(skey()); localRecords().forEach(r=>{ local=mergeDB(local,r); }); let remote=null;
+  if(SYNC_URL&&(!restored||!local)){ const b=loginForm.querySelector('.btn'), bt=b.textContent; b.disabled=true; b.textContent='기록 불러오는 중…';
+    try{ remote=await pullRemote(); sync.state='ok'; }catch(e){ sync.state='fail'; }
+    b.disabled=false; b.textContent=bt;
+    if(!student||student.id!==id||student.name!==name) return; }
+  const old=mergeDB(local,remote); DB=old||{pages:{}};
   const cnt=Object.values(DB.pages).filter(p=>p.sum&&p.sum.answered>0).length;
   document.getElementById('welcome').textContent=restored?'':(old&&cnt?`다시 왔네요, ${name}! 지난번에 풀던 ${cnt}개 페이지의 기록을 불러왔어요.`:`${name}, 환영해요! 페이지를 골라 시작해 보세요.`);
-  if(!store.ok) document.getElementById('saveHelp').textContent='이 화면에서는 기록이 저장되지 않아요. 창을 닫으면 기록이 사라져요.';
-  NUMS.forEach(updateHome); refreshWho(); save(); sessSet({});
+  syncMsg();
+  NUMS.forEach(updateHome); refreshWho();
+  if(DB.updated){ store.set(skey(),DB); if(SYNC_URL&&(remote?(remote.updated||0)<DB.updated:!restored)) pushRemote(); }
+  else save();
+  sessSet({});
   const p=pending; pending=null; go(p); }
 function tryLogin(){
   const id=document.getElementById('sid').value.trim(), name=document.getElementById('sname').value.trim().replace(/\s+/g,' '), err=document.getElementById('loginErr');
@@ -880,7 +931,7 @@ loginForm.querySelector('.btn').addEventListener('click',e=>{ e.preventDefault()
 ['sid','sname'].forEach(i=>document.getElementById(i).addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); tryLogin(); } }));
 document.getElementById('logout').onclick=()=>{
   askConfirm('다른 학생으로 바꿀까요? 지금까지의 기록은 저장되어 있어요.',()=>{
-    sessClear(); student=null; DB=null; clearViews(); NUMS.forEach(updateHome);
+    if(sync.dirty) pushRemote(); sessClear(); student=null; DB=null; clearViews(); NUMS.forEach(updateHome);
     document.getElementById('sid').value=''; document.getElementById('sname').value=''; go(null); }); };
 // 미리보기 창(샌드박스)에서는 #주소 이동이 막힐 수 있어서, 클릭으로 직접 화면을 바꿔요.
 function go(n){
@@ -904,11 +955,11 @@ function route(){ const m=location.hash.match(/^#p(\d+)$/); go(m?Number(m[1]):nu
 window.addEventListener('hashchange',route);
 (function start(){
   const o=sessGet(), m=location.hash.match(/^#p(\d+)$/);
-  if(o&&o.id&&o.name){ pending=m?Number(m[1]):(o.page||null); const y=o.scrollY||0; doLogin(o.id,o.name,true);
-    requestAnimationFrame(()=>setTimeout(()=>window.scrollTo(0,y),30)); }
+  if(o&&o.id&&o.name){ pending=m?Number(m[1]):(o.page||null); const y=o.scrollY||0; doLogin(o.id,o.name,true).then(()=>requestAnimationFrame(()=>setTimeout(()=>window.scrollTo(0,y),30))); }
   else route(); })();
 // 새로 고침 직전 스크롤 위치 기억
-window.addEventListener('pagehide',()=>sessSet({scrollY:window.scrollY}));
+window.addEventListener('pagehide',()=>{ sessSet({scrollY:window.scrollY}); flushPush(); });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushPush(); });
 
 </script>
 </body>
