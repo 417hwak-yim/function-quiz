@@ -8,10 +8,10 @@
 <title>공통수학2 함수 퀴즈 놀이터</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Noto+Sans+KR:wght@500;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;800&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F6F8FF; --grid:#DFE7F8; --ink:#1D2547; --muted:#5A6386; --card:#FFFFFF; --line:#CBD5EE;
+  --paper:#F6F8FF; --grid:#DFE7F8; --ink:#121836; --muted:#3E4668; --card:#FFFFFF; --line:#CBD5EE;
   --c1:#FF5E5B; --c2:#F5A300; --c3:#00A99D; --c4:#3A6FF7; --c5:#9B5DE5; --c6:#E94FA8;
   --ok:#1A9E55; --bad:#E0393C; --okbg:#E3F7EC; --badbg:#FDE8E8;
   box-sizing:border-box;
@@ -25,7 +25,7 @@ body{
   margin:0; color:var(--ink); background-color:var(--paper);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:24px 24px;
-  font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:17px; line-height:1.6;
+  font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:500; font-size:17px; line-height:1.65; letter-spacing:-0.01em; text-rendering:optimizeLegibility;
 }
 .wrap{max-width:880px; margin:0 auto; padding:20px 16px 60px}
 h1,h2,.tab,.big,.score b,.badge{font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-weight:400}
@@ -44,7 +44,7 @@ h1 span:nth-child(6n+4){color:var(--c4)} h1 span:nth-child(6n+5){color:var(--c5)
 .tabs{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding:4px 0 14px}
 .tab{min-width:0; border:2px solid var(--accent); color:var(--accent); background:var(--card); border-radius:16px; padding:8px 4px; font-size:16px; line-height:1.25; cursor:pointer; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; text-align:center; word-break:keep-all}
 @media (max-width:640px){ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))} .tab{font-size:15px} }
-.tab .cnt{font-family:"Gowun Dodum",sans-serif; font-size:13px; background:var(--accent); color:#fff; border-radius:999px; padding:1px 8px}
+.tab .cnt{font-family:"Noto Sans KR",sans-serif; font-weight:700; font-size:13px; background:var(--accent); color:#fff; border-radius:999px; padding:1px 8px}
 .tab[aria-selected="true"]{background:var(--accent); color:#fff}
 .tab[aria-selected="true"] .cnt{background:#fff; color:var(--accent)}
 .tab.done .cnt::after{content:" ★"}
