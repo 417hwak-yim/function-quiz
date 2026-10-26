@@ -512,7 +512,7 @@ function syncMsg(){ const h=document.getElementById('saveHelp'); if(!h)return;
 function withTimeout(pr,ms){ return Promise.race([pr,new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),ms))]); }
 async function pullRemote(){ if(!SYNC_URL)return null;
   const u=`${SYNC_URL}?action=load&id=${encodeURIComponent(student.id)}&name=${encodeURIComponent(student.name)}&t=${Date.now()}`;
-  const r=await withTimeout(fetch(u,{redirect:'follow'}),9000); const j=await r.json();
+  const r=await withTimeout(fetch(u,{redirect:'follow'}),12000); const j=await r.json();
   if(!j.ok) throw new Error(j.error||'load fail'); return j.data||null; }
 function summaryText(){ return NUMS.map(n=>{ const P=DB.pages[n]; if(!P||!P.sum||!P.sum.answered)return null;
   return `p${n} ${P.sum.correct}/${P.sum.total}${P.snackGiven?' 🍪':P.earned?' ★':''}`; }).filter(Boolean).join(' · '); }
@@ -525,15 +525,26 @@ async function pushRemote(){ if(!SYNC_URL||!student||!DB)return; clearTimeout(sy
 function schedulePush(){ if(!SYNC_URL)return; sync.dirty=true; if(!sync.timer) sync.timer=setTimeout(()=>{ sync.timer=null; pushRemote(); },8000); }
 function flushPush(){ if(!SYNC_URL||!sync.dirty||!student||!DB)return; sync.dirty=false; clearTimeout(sync.timer); sync.timer=null;
   try{ navigator.sendBeacon(SYNC_URL,new Blob([payload()],{type:'text/plain;charset=utf-8'})); }catch(e){} }
-// 두 기록을 합침: 더 최근에 저장된 쪽을 기준으로 하고, 간식·보너스 게임처럼 '한 번만' 기록은 어느 쪽에 있든 남김
-function mergeDB(a,b){ if(!a||!a.pages)return b; if(!b||!b.pages)return a;
-  const [base,other]=(a.updated||0)>=(b.updated||0)?[a,b]:[b,a], out=JSON.parse(JSON.stringify(base));
-  Object.entries(other.pages).forEach(([k,p])=>{ const q=out.pages[k]; if(!q){ out.pages[k]=p; return; }
-    ['snackGiven','earned','first','gameAt'].forEach(f=>{ if(p[f]&&!q[f]) q[f]=p[f]; }); });
+// 두 기록을 '페이지마다' 합침: 실제로 더 나중에 푼 쪽을 남기고, 간식·보너스 게임처럼 한 번만 되는 기록은 어느 쪽에 있든 남김
+const ONCE=['snackGiven','earned','first','gameAt'];
+const blankPage=x=>!x||(!(x.log&&x.log.length)&&(x.tries||1)<=1&&!ONCE.some(f=>x[f]));
+function mergePage(p,q){ if(blankPage(p)) return q||p; if(blankPage(q)) return p;
+  let a=p,b=q; const tu=(p.upd||0)-(q.upd||0);
+  if(tu<0||(tu===0&&((q.tries||1)>(p.tries||1)||((q.tries||1)===(p.tries||1)&&(q.log||[]).length>(p.log||[]).length)))){ a=q; b=p; }
+  const out=JSON.parse(JSON.stringify(a)); ONCE.forEach(f=>{ if(b[f]&&!out[f]) out[f]=b[f]; }); return out; }
+function mergeDB(a,b){ if(!a||!a.pages)return b&&b.pages?b:a; if(!b||!b.pages)return a;
+  const out={pages:{},updated:Math.max(a.updated||0,b.updated||0)};
+  new Set([...Object.keys(a.pages),...Object.keys(b.pages)]).forEach(k=>{ out.pages[k]=mergePage(a.pages[k],b.pages[k]); });
   return out; }
+// 페이지에서 실제로 푼 내용이 바뀌었을 때만 그 페이지에 시각을 찍음 (화면을 열기만 한 것은 제외)
+let SNAP={};
+const pageSig=x=>JSON.stringify([x.log,x.tries,x.retryOnly,x.keep,x.snackGiven,x.gameAt]);
+function snapAll(){ SNAP={}; Object.entries(DB.pages).forEach(([k,x])=>SNAP[k]=pageSig(x)); }
 const skey=()=>`fnquiz:v1:${student.id}:${student.name}`;
 function rec(n){ DB.pages[n]=DB.pages[n]||{log:[],tries:1,finishedAt:null,sum:null}; return DB.pages[n]; }
-function save(){ if(!student)return; DB.updated=Date.now(); store.set(skey(),DB); schedulePush(); }
+function save(){ if(!student)return;
+  Object.entries(DB.pages).forEach(([k,x])=>{ const s=pageSig(x); if(SNAP[k]!==s){ SNAP[k]=s; if(!blankPage(x)) x.upd=Date.now(); } });
+  DB.updated=Date.now(); store.set(skey(),DB); schedulePush(); }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtTime=t=>{ const d=new Date(t); const z=x=>String(x).padStart(2,'0'); return `${d.getMonth()+1}월 ${d.getDate()}일 ${z(d.getHours())}:${z(d.getMinutes())}`; };
 const needOf=T=>Math.ceil(T*0.8-1e-9);
@@ -908,7 +919,7 @@ async function doLogin(id,name,restored){
   student={id,name}; clearViews();
   let local=store.get(skey()); localRecords().forEach(r=>{ local=mergeDB(local,r); }); let remote=null;
   if(SYNC_URL&&(!restored||!local)){ const b=loginForm.querySelector('.btn'), bt=b.textContent; b.disabled=true; b.textContent='기록 불러오는 중…';
-    try{ remote=await pullRemote(); sync.state='ok'; }catch(e){ sync.state='fail'; }
+    try{ remote=await pullRemote(); sync.state='ok'; }catch(e){ try{ remote=await pullRemote(); sync.state='ok'; }catch(e2){ sync.state='fail'; } }
     b.disabled=false; b.textContent=bt;
     if(!student||student.id!==id||student.name!==name) return; }
   const old=mergeDB(local,remote); DB=old||{pages:{}};
@@ -916,8 +927,10 @@ async function doLogin(id,name,restored){
   document.getElementById('welcome').textContent=restored?'':(old&&cnt?`다시 왔네요, ${name}! 지난번에 풀던 ${cnt}개 페이지의 기록을 불러왔어요.`:`${name}, 환영해요! 페이지를 골라 시작해 보세요.`);
   syncMsg();
   NUMS.forEach(updateHome); refreshWho();
-  if(DB.updated){ store.set(skey(),DB); if(SYNC_URL&&(remote?(remote.updated||0)<DB.updated:!restored)) pushRemote(); }
-  else save();
+  snapAll();
+  if(!DB.updated) DB.updated=Date.now();
+  store.set(skey(),DB);
+  if(SYNC_URL&&sync.state==='ok'&&(!remote||JSON.stringify(mergeDB(remote,DB))!==JSON.stringify(remote))) pushRemote();
   sessSet({});
   const p=pending; pending=null; go(p); }
 function tryLogin(){
@@ -959,7 +972,15 @@ window.addEventListener('hashchange',route);
   else route(); })();
 // 새로 고침 직전 스크롤 위치 기억
 window.addEventListener('pagehide',()=>{ sessSet({scrollY:window.scrollY}); flushPush(); });
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushPush(); });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ flushPush(); return; } refreshFromRemote(); });
+// 다른 기기에서 푼 기록이 있으면 이 화면에도 반영 (탭을 오래 열어 둔 경우)
+let lastPull=Date.now();
+async function refreshFromRemote(){ if(!SYNC_URL||!student||!DB||Date.now()-lastPull<20000)return; lastPull=Date.now();
+  const who=student; let remote; try{ remote=await pullRemote(); }catch(e){ return; }
+  if(student!==who||!remote)return; const m=mergeDB(DB,remote);
+  if(JSON.stringify(m.pages)===JSON.stringify(DB.pages))return;
+  DB=m; snapAll(); store.set(skey(),DB); const o=sessGet(); clearViews(); NUMS.forEach(updateHome); go(o&&o.page||null);
+  if(JSON.stringify(mergeDB(remote,DB))!==JSON.stringify(remote)) pushRemote(); }
 
 </script>
 </body>
